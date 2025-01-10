@@ -1,0 +1,4 @@
+.dvc/cache/
+.dvc/tmp/
+
+.csv
