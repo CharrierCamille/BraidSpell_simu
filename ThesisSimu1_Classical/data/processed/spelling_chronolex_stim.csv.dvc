@@ -1,0 +1,5 @@
+outs:
+- md5: f8811f9b1d7e1fb4c371fb3b594889e9
+  size: 12744
+  hash: md5
+  path: spelling_chronolex_stim.csv
