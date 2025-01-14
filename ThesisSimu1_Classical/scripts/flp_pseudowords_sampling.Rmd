@@ -21,9 +21,7 @@ options(encoding = 'UTF-8')
 
 # - Abstract
 
-Calibration of feedforward ratio
-
-
+Script used to load flp pseudowords and to sample a set of n = 50 pseudowords to use as stimuli for the simulation of classical effects.
 
 # - Pretreatments
 
@@ -45,7 +43,7 @@ library(colorspace)
 Load of the global variables needed for the import of databases and the plots
 
 ```{r}
-path_flp_pw = "C:/Users/Camille/Documents/LPNC/_Thesis/Studies/T1_ClassicalEffects/Reading/PW/flp_pseudowords.csv"
+path_flp_pw = "../data/external/flp_pseudowords_data.csv"
 
 
 cbp <- c("#FFB23D", "#38A29A", "#19609E", "#009E73",
@@ -61,23 +59,32 @@ cbp2 <- c("#FFB23D", "#18578E", "#35C3B8", "#009E73",
 
 Load the databases into dataframe variables
 
+For a description of the columns, see ThesisSimu1_Classical/data/external/README.md
+
 ```{r}
 data = read.csv2(path_flp_pw)
 ```
 
-# - Decription
+# - Description
+
+Quantitative description of the dataframe, with first: the number of pseudowords by orthographic length, and second: boxplot of the number of errors by orthographical length
 
 ```{r}
 data %>% group_by(len) %>% summarise(n=n())
 
 data %>% ggplot(aes(x=as.factor(len),y=err)) +
   geom_boxplot() +
-  theme_classic(12)
+  theme_classic(12) +
+  labs(x="Length",y="Number of errors")
 ```
 
 # - Sampling
 
+Sampling of the subset of words which will be used as stimuli for the simulation: pseudowords not leading to mistakes, not with a verry small nused, and with a length between 3 and 8 (as chronolex stimuli): select a number of n = 50 pseudoword by length. And create the adequate .csv if needed (already created).
+
 ```{r}
-data %>% filter(err==0 & nused!=2 & len>2 & len<9) %>% group_by(len) %>% sample_n(50,replace=FALSE) %>%  write.csv("01_pw_flp_50bylen.csv",row.names = FALSE)
+data %>% filter(err==0 & nused!=2 & len>2 & len<9) %>% group_by(len) %>% sample_n(50,replace=FALSE)
+
+# data %>% filter(err==0 & nused!=2 & len>2 & len<9) %>% group_by(len) %>% sample_n(50,replace=FALSE) %>%  write.csv("../data/processed/flp_pseudowords_stim.csv",row.names = FALSE)
 ```
 

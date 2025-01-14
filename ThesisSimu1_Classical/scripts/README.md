@@ -22,3 +22,4 @@ Type: CSV file, UTF-8 encoding
 #### Versionning
 
 v1: 14/01/2024 - 1st version, used for sampling actual stims, before documentation and proofreading
+v2: 14/01/2024 - 2nd version, with more comments, and relative paths
