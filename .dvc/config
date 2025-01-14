@@ -1,0 +1,4 @@
+[core]
+    remote = uga_remote
+[remote "uga_remote"]
+    url = C:/Users/Camille/Documents/LPNC/_RemoteData/Cloud_Data_PhD
