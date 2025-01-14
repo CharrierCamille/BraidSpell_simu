@@ -2,3 +2,4 @@
 .dvc/tmp/
 
 .csv
+.Rhistory

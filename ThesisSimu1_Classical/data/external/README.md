@@ -1,26 +1,26 @@
 # README EXTERNAL DATA SIMU 1 CLASSICAL EFFECTS - CHARRIER'S PHD
 
-# Goal
+## Goal
 
 This file describe the data files imported from other sources used in this set of simulations.
 
-# Files 
+## Files 
 
 - chronolex_data.csv:
 - flp_pseudowords_data.csv:
 
-# Files details
+## Files details
 
-## chronolex_data.csv
+### chronolex_data.csv
 
-### Metadata
+#### Metadata
 
 Source: 
 Property:
 Date:
 Type: CSV file, UTF-8 encoding
 
-### Content
+#### Content
 
 "item":
 "Phon":
@@ -57,16 +57,16 @@ Type: CSV file, UTF-8 encoding
 "Decom_GP":
 
 
-## flp_pseudowords_data.csv
+### flp_pseudowords_data.csv
 
-### Metadata
+#### Metadata
 
 Source:
 Property:
 Date:
 Type: CSV file, UTF-8 encoding
 
-### Content
+#### Content
 
 "item":
 "ntrials":
