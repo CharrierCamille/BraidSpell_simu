@@ -1,0 +1,5 @@
+outs:
+- md5: 8033f705ce86b2a793ea060a3666fef2
+  size: 16398
+  hash: md5
+  path: spelling_feedback_stim.csv
