@@ -1,0 +1,5 @@
+outs:
+- md5: 70345719507d14aac36c1960f5ca2077
+  size: 14911
+  hash: md5
+  path: reading_chronolex_stim.csv

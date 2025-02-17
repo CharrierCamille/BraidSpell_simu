@@ -1,4 +1,4 @@
 [core]
-    remote = myremote
-['remote "myremote"']
-    url = https://cloud.univ-grenoble-alpes.fr/remote.php/dav/files/charrica/Cloud_Data_PhD/
+    remote = uga_remote
+[remote "uga_remote"]
+    url = C:/Users/Camille/Documents/LPNC/_RemoteData/Cloud_Data_PhD	
