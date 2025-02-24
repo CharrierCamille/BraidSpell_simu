@@ -18,7 +18,6 @@ import numpy as np
 
 np.random.seed(seed=231024)
 
-
 #######################
 ### B - Model init ####
 #######################
@@ -56,43 +55,16 @@ def simu_definition(input_type="visual", remove_stim_ortho=False, remove_stim_ph
 ### C - Param definition ####
 #########################
 
-stimuli_reading = pd.read_csv("01_Rstim_lengthcalib.csv", index_col=0).reset_index().word.tolist()
-stimuli_spelling = pd.read_csv("01_Sstim_lengthcalib.csv", index_col=0).reset_index().pron.tolist()
-
-# stimuli_reading = ["coût", "crampon", "fort", "geai", "hier", "lord", "ours", "parfum", "pouah", "sage",
-#                    "session", "soir", "soupçon", "tien", "traînée", "érable"]
-#
-# stimuli_spelling = ["5fEkt", "Rwajal", "ZyRe", "akORde", "apsoly", "b&de", "balE", "byte", "dZin",
-#                     "diREkt", "efOR", "epuv@te", "fele", "k&tRa", "k&tuRne", "k&vwa", "kORdjal", "pRete", "paRe",
-#                     "petaR", "sepaRe", "tR@ble", "tRuble", "yile"]
+stimuli_reading = pd.read_csv("../data/processed/reading_feedback_stim.csv", index_col=0).reset_index().word.tolist()
+stimuli_spelling = pd.read_csv("../data/processed/spelling_feedback_stim.csv", index_col=0).reset_index().pron.tolist()
 
 stimuli_reading = [f'!{word}!' for word in stimuli_reading]
 stimuli_spelling = [f'!{word}!' for word in stimuli_spelling]
-
 
 decoding_ratio_ff = [0.006]
 decoding_ratio_fb = [0.003]
 
 n=30
-
-# top_down = [i for i in np.random.normal(5e-4, 5e-4, n) if i > 0]
-#
-# while len(top_down) < n:
-#     i = np.random.normal(5e-4, 5e-4, 1)[0]
-#     if i > 0:
-#         top_down.append(i)
-#
-# print(top_down)
-
-# decoding_ratio_ff = [i for i in np.random.normal(5e-3, 2e-3, n) if i > 0]
-#
-# while len(decoding_ratio_ff) < n:
-#     i = np.random.normal(5e-3, 2e-3, 1)[0]
-#     if i > 0:
-#         decoding_ratio_ff.append(i)
-#
-# print(decoding_ratio_ff)
-#
 
 
 decoding_ratio_fb = [i for i in np.random.normal(0.0025, 0.001, n) if i > 0]
@@ -114,9 +86,8 @@ sim_reading = simu_definition(input_type="visual", remove_stim_ortho=False, remo
                                   simu_type="H", criterion_type="both", sd=1)
 
 expe_param_reading_w = {"res_fct_name": ["t_tot", "ld_ortho", "ld_phono", "phi", "let","simu_time"],
-              "basename": "01_length_fb_wr",
+              "basename": "reading_word_feedback_raw",
               "n_expo": 1,
-
               "test": {"decoding_ratio_po": decoding_ratio_fb},
               "liste": stimuli_reading}
 
@@ -128,9 +99,8 @@ sim_reading_pw = simu_definition(input_type="visual", remove_stim_ortho=True, re
                                   simu_type="H", criterion_type="both", sd=1)
 
 expe_param_reading_pw = {"res_fct_name": ["t_tot", "ld_ortho", "ld_phono", "phi", "let","simu_time"],
-              "basename": "01_length_fb_pwr",
+              "basename": "reading_pseudoword_feedback_raw",
               "n_expo": 1,
-
               "test": {"decoding_ratio_po": decoding_ratio_fb},
               "liste": stimuli_reading}
 
@@ -141,7 +111,7 @@ sim_spelling_w = simu_definition(input_type="auditory", remove_stim_ortho=False,
                                   simu_type="spelling_H", criterion_type="both")
 
 expe_param_spelling_w = {"res_fct_name": ["t_tot", "ld_ortho", "ld_phono", "phi", "let","simu_time"],
-              "basename": "01_length_fb_ws",
+              "basename": "spelling_word_feedback_raw",
               "n_expo": 1,
               "test": {"decoding_ratio_op": decoding_ratio_fb},
               "liste": stimuli_spelling}
@@ -153,7 +123,7 @@ sim_spelling_pw = simu_definition(input_type="auditory", remove_stim_ortho=True,
                                   simu_type="spelling_H", criterion_type="both")
 
 expe_param_spelling_pw = {"res_fct_name": ["t_tot", "ld_ortho", "ld_phono", "phi", "let","simu_time"],
-              "basename": "01_length_fb_pws",
+              "basename": "spelling_pseudoword_feedback_raw",
               "n_expo": 1,
               "test": {"decoding_ratio_op": decoding_ratio_fb},
               "liste": stimuli_spelling}
