@@ -1,0 +1,5 @@
+outs:
+- md5: 48eda5d59690d707cdc5021aa3705386
+  size: 23576
+  hash: md5
+  path: decoding_uniform_spell_word_raw.csv

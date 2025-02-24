@@ -1,0 +1,5 @@
+outs:
+- md5: 572f954de7ae5c469b2c2004d59beae1
+  size: 23686
+  hash: md5
+  path: decoding_augmented_read_pword_raw.csv

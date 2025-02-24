@@ -1,0 +1,5 @@
+outs:
+- md5: beabf598094721ed0c14af4b5ee2b160
+  size: 23833
+  hash: md5
+  path: decoding_classical_spell_pword_raw.csv

@@ -1,0 +1,5 @@
+outs:
+- md5: 80d00b6bc89937ae9197237923b48403
+  size: 23475
+  hash: md5
+  path: decoding_augmented_spell_word_raw.csv
