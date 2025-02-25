@@ -1,0 +1,393 @@
+---
+title: "Analysis_TestDecoding"
+author: "Camille Charrier"
+date: "2025-02-24"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    theme: lumen
+    toc_float: true
+    number_sections: true
+    highlight: tango
+    fig_caption: true
+    code_folding: hide
+---
+
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(warning = FALSE, message = FALSE,fig.align="center") 
+options(encoding = 'UTF-8')
+```
+
+# - Abstract
+
+Analysis of different type of decoding within the BRAID-Spell model, for both reading and spelling tasks.
+1) Classical (c) : weighted by P(W) with alignment for 10 words
+1) Uniform (u) : weighted by uniform for 10 words
+3) Augmented (a) : weighted by P(W) with alignment for 25 words
+
+# - Pretreatments
+
+## - Import
+
+Load of packages needed for the further computations
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(stringr)
+library(tidyr)
+library(colorspace)
+```
+
+## - Global variables
+
+Load of the global variables needed for the import of databases and the plots
+
+```{r}
+path_stim_read = "../data/processed/reading_decoding_stim.csv"
+path_stim_spell = "../data/processed/spelling_decoding_stim.csv"
+
+path_read_w_c = "../results/decoding_classical_read_word_raw.csv"
+path_read_pw_c = "../results/decoding_classical_read_pword_raw.csv"
+path_spell_w_c = "../results/decoding_classical_spell_word_raw.csv"
+path_spell_pw_c = "../results/decoding_classical_spell_pword_raw.csv"
+
+path_read_w_u = "../results/decoding_uniform_read_word_raw.csv"
+path_read_pw_u = "../results/decoding_uniform_read_pword_raw.csv"
+path_spell_w_u = "../results/decoding_uniform_spell_word_raw.csv"
+path_spell_pw_u = "../results/decoding_uniform_spell_pword_raw.csv"
+
+path_read_w_a = "../results/decoding_augmented_read_word_raw.csv"
+path_read_pw_a = "../results/decoding_augmented_read_pword_raw.csv"
+path_spell_w_a = "../results/decoding_augmented_spell_word_raw.csv"
+path_spell_pw_a = "../results/decoding_augmented_spell_pword_raw.csv"
+
+
+cbp <- c("#FFB23D", "#38A29A", "#19609E", "#009E73",
+          "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+cbp2 <- c("#FFB23D", "#18578E", "#35C3B8", "#009E73",
+          "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+```
+
+## - Load stim
+
+Load the stim list into dataframe
+
+```{r}
+stim_read = read.csv(path_stim_read,sep=",",fileEncoding="UTF-8")
+stim_spell = read.csv(path_stim_spell,sep=",",fileEncoding="UTF-8")
+
+```
+
+## - Load results
+
+Load the simulation results into dataframe
+
+```{r}
+raw_read_w_c = read.csv(path_read_w_c,sep=",",fileEncoding="UTF-8") %>% select(-c(t,success,error_type))
+raw_read_pw_c = read.csv(path_read_pw_c,sep=",",fileEncoding="UTF-8") %>% select(-c(t,success,error_type))
+raw_spell_w_c = read.csv(path_spell_w_c,sep=",",fileEncoding="UTF-8") %>% select(-c(t,success,error_type))
+raw_spell_pw_c = read.csv(path_spell_pw_c,sep=",",fileEncoding="UTF-8") %>% select(-c(t,success,error_type))
+
+raw_read_w_u = read.csv(path_read_w_u,sep=",",fileEncoding="UTF-8") %>% select(-c(t,success,error_type))
+raw_read_pw_u = read.csv(path_read_pw_u,sep=",",fileEncoding="UTF-8") %>% select(-c(t,success,error_type))
+raw_spell_w_u = read.csv(path_spell_w_u,sep=",",fileEncoding="UTF-8") %>% select(-c(t,success,error_type))
+raw_spell_pw_u = read.csv(path_spell_pw_u,sep=",",fileEncoding="UTF-8") %>% select(-c(t,success,error_type))
+
+raw_read_w_a = read.csv(path_read_w_a,sep=",",fileEncoding="UTF-8") %>% select(-c(t,success,error_type))
+raw_read_pw_a = read.csv(path_read_pw_a,sep=",",fileEncoding="UTF-8") %>% select(-c(t,success,error_type))
+raw_spell_w_a = read.csv(path_spell_w_a,sep=",",fileEncoding="UTF-8") %>% select(-c(t,success,error_type))
+raw_spell_pw_a = read.csv(path_spell_pw_a,sep=",",fileEncoding="UTF-8") %>% select(-c(t,success,error_type))
+```
+
+## - Pre-process results
+
+Transform raw dataframes into easily usable processed dataframes
+
+```{r}
+data_read_w_c = raw_read_w_c %>% 
+    mutate(num = case_when(num==0~"t_tot", num==1~"ld_ortho",num==2~"ld_phono",
+                           num==3~"phi",num==4~"let",num==5~"simu_time"))  %>% 
+    pivot_wider(names_from = "num",values_from = "value")  %>% 
+    mutate(t_tot = as.integer(t_tot), 
+           len=nchar(word)-2, 
+           task="Reading", 
+           wordtype="Word",
+           decodingtype="Classical",
+           ld_ortho=as.numeric(ld_ortho), 
+           ld_phono=as.numeric(ld_phono), 
+           simu_time=round(as.numeric(simu_time))) %>%
+    mutate(word=gsub("!","",word),
+           phi=gsub("!","", phi),
+           let=gsub("!","",let)) %>%
+    mutate(phi=gsub("~","",phi),
+           let=gsub("~","",let)) %>%
+    inner_join(stim_read %>% select(c(word,len,pron)),by=c("word"="word","len"="len"))  %>%
+    mutate(success = (phi==pron)) 
+
+data_read_pw_c = raw_read_pw_c %>% 
+    mutate(num = case_when(num==0~"t_tot", num==1~"ld_ortho",num==2~"ld_phono",
+                           num==3~"phi",num==4~"let",num==5~"simu_time"))  %>% 
+    pivot_wider(names_from = "num",values_from = "value")  %>% 
+    mutate(t_tot = as.integer(t_tot), 
+           len=nchar(word)-2, 
+           task="Reading",
+           wordtype="Pseudoword",
+           decodingtype="Classical",
+           ld_ortho=as.numeric(ld_ortho), 
+           ld_phono=as.numeric(ld_phono), 
+           simu_time=round(as.numeric(simu_time))) %>%
+    mutate(word=gsub("!","",word),
+           phi=gsub("!","", phi),
+           let=gsub("!","",let)) %>%
+    mutate(phi=gsub("~","",phi),
+           let=gsub("~","",let)) %>%
+    inner_join(stim_read %>% select(c(word,len,pron)),by=c("word"="word","len"="len"))  %>%
+    mutate(success = (phi==pron))
+
+data_spell_w_c = raw_spell_w_c %>% 
+    mutate(num = case_when(num==0~"t_tot", num==1~"ld_ortho",num==2~"ld_phono",
+                           num==3~"phi",num==4~"let",num==5~"simu_time"))  %>% 
+    pivot_wider(names_from = "num",values_from = "value")  %>%
+    unnest(cols = c(t_tot, ld_ortho, ld_phono, phi, let, simu_time)) %>%
+    mutate(t_tot = as.integer(t_tot), 
+           len=nchar(word)-2, 
+           task="Spelling",
+           wordtype="Word",
+           decodingtype="Classical",
+           ld_ortho=as.numeric(ld_ortho), 
+           ld_phono=as.numeric(ld_phono), 
+           simu_time=round(as.numeric(simu_time))) %>%
+    mutate(word=gsub("!","",word),
+           phi=gsub("!","", phi),
+           let=gsub("!","",let)) %>%
+    mutate(phi=gsub("~","",phi),
+           let=gsub("~","",let)) %>%
+    inner_join(stim_spell %>% select(c(word,len,phlen,pron)),by=c("word"="pron","len"="phlen"))  %>%
+    mutate(success = (let==word.y)) %>% select(-c(word.y,len.y))
+
+data_spell_pw_c = raw_spell_pw_c %>%
+    mutate(num = case_when(num==0~"t_tot", num==1~"ld_ortho",num==2~"ld_phono",
+                           num==3~"phi",num==4~"let",num==5~"simu_time"))  %>%
+    pivot_wider(names_from = "num",values_from = "value")  %>%
+    mutate(t_tot = as.integer(t_tot),
+           len=nchar(word)-2,
+           task="Spelling",
+           wordtype="Pseudoword",
+           decodingtype="Classical",
+           ld_ortho=as.numeric(ld_ortho),
+           ld_phono=as.numeric(ld_phono),
+           simu_time=round(as.numeric(simu_time))) %>%
+    mutate(word=gsub("!","",word),
+           phi=gsub("!","", phi),
+           let=gsub("!","",let)) %>%
+    mutate(phi=gsub("~","",phi),
+          let=gsub("~","",let))  %>%
+    inner_join(stim_spell %>% select(c(word,len,phlen,pron)),by=c("word"="pron","len"="phlen"))  %>%
+    mutate(success = (let==word.y)) %>% select(-c(word.y,len.y))
+
+data_read_w_u = raw_read_w_u %>% 
+    mutate(num = case_when(num==0~"t_tot", num==1~"ld_ortho",num==2~"ld_phono",
+                           num==3~"phi",num==4~"let",num==5~"simu_time"))  %>% 
+    pivot_wider(names_from = "num",values_from = "value")  %>% 
+    mutate(t_tot = as.integer(t_tot), 
+           len=nchar(word)-2, 
+           task="Reading", 
+           wordtype="Word",
+           decodingtype="Uniform",
+           ld_ortho=as.numeric(ld_ortho), 
+           ld_phono=as.numeric(ld_phono), 
+           simu_time=round(as.numeric(simu_time))) %>%
+    mutate(word=gsub("!","",word),
+           phi=gsub("!","", phi),
+           let=gsub("!","",let)) %>%
+    mutate(phi=gsub("~","",phi),
+           let=gsub("~","",let)) %>%
+    inner_join(stim_read %>% select(c(word,len,pron)),by=c("word"="word","len"="len"))  %>%
+    mutate(success = (phi==pron)) 
+
+data_read_pw_u = raw_read_pw_u %>% 
+    mutate(num = case_when(num==0~"t_tot", num==1~"ld_ortho",num==2~"ld_phono",
+                           num==3~"phi",num==4~"let",num==5~"simu_time"))  %>% 
+    pivot_wider(names_from = "num",values_from = "value")  %>% 
+    mutate(t_tot = as.integer(t_tot), 
+           len=nchar(word)-2, 
+           task="Reading",
+           wordtype="Pseudoword",
+           decodingtype="Uniform",
+           ld_ortho=as.numeric(ld_ortho), 
+           ld_phono=as.numeric(ld_phono), 
+           simu_time=round(as.numeric(simu_time))) %>%
+    mutate(word=gsub("!","",word),
+           phi=gsub("!","", phi),
+           let=gsub("!","",let)) %>%
+    mutate(phi=gsub("~","",phi),
+           let=gsub("~","",let)) %>%
+    inner_join(stim_read %>% select(c(word,len,pron)),by=c("word"="word","len"="len"))  %>%
+    mutate(success = (phi==pron))
+
+data_spell_w_u = raw_spell_w_u %>% 
+    mutate(num = case_when(num==0~"t_tot", num==1~"ld_ortho",num==2~"ld_phono",
+                           num==3~"phi",num==4~"let",num==5~"simu_time"))  %>% 
+    pivot_wider(names_from = "num",values_from = "value")  %>%
+    unnest(cols = c(t_tot, ld_ortho, ld_phono, phi, let, simu_time)) %>%
+    mutate(t_tot = as.integer(t_tot), 
+           len=nchar(word)-2, 
+           task="Spelling",
+           wordtype="Word",
+           decodingtype="Uniform",
+           ld_ortho=as.numeric(ld_ortho), 
+           ld_phono=as.numeric(ld_phono), 
+           simu_time=round(as.numeric(simu_time))) %>%
+    mutate(word=gsub("!","",word),
+           phi=gsub("!","", phi),
+           let=gsub("!","",let)) %>%
+    mutate(phi=gsub("~","",phi),
+           let=gsub("~","",let)) %>%
+    inner_join(stim_spell %>% select(c(word,len,phlen,pron)),by=c("word"="pron","len"="phlen"))  %>%
+    mutate(success = (let==word.y)) %>% select(-c(word.y,len.y))
+
+data_spell_pw_u = raw_spell_pw_u %>%
+    mutate(num = case_when(num==0~"t_tot", num==1~"ld_ortho",num==2~"ld_phono",
+                           num==3~"phi",num==4~"let",num==5~"simu_time"))  %>%
+    pivot_wider(names_from = "num",values_from = "value")  %>%
+    mutate(t_tot = as.integer(t_tot),
+           len=nchar(word)-2,
+           task="Spelling",
+           wordtype="Pseudoword",
+           decodingtype="Uniform",
+           ld_ortho=as.numeric(ld_ortho),
+           ld_phono=as.numeric(ld_phono),
+           simu_time=round(as.numeric(simu_time))) %>%
+    mutate(word=gsub("!","",word),
+           phi=gsub("!","", phi),
+           let=gsub("!","",let)) %>%
+    mutate(phi=gsub("~","",phi),
+          let=gsub("~","",let))  %>%
+    inner_join(stim_spell %>% select(c(word,len,phlen,pron)),by=c("word"="pron","len"="phlen"))  %>%
+    mutate(success = (let==word.y)) %>% select(-c(word.y,len.y))
+
+data_read_w_a = raw_read_w_a %>% 
+    mutate(num = case_when(num==0~"t_tot", num==1~"ld_ortho",num==2~"ld_phono",
+                           num==3~"phi",num==4~"let",num==5~"simu_time"))  %>% 
+    pivot_wider(names_from = "num",values_from = "value")  %>% 
+    mutate(t_tot = as.integer(t_tot), 
+           len=nchar(word)-2, 
+           task="Reading", 
+           wordtype="Word",
+           decodingtype="Augmented",
+           ld_ortho=as.numeric(ld_ortho), 
+           ld_phono=as.numeric(ld_phono), 
+           simu_time=round(as.numeric(simu_time))) %>%
+    mutate(word=gsub("!","",word),
+           phi=gsub("!","", phi),
+           let=gsub("!","",let)) %>%
+    mutate(phi=gsub("~","",phi),
+           let=gsub("~","",let)) %>%
+    inner_join(stim_read %>% select(c(word,len,pron)),by=c("word"="word","len"="len"))  %>%
+    mutate(success = (phi==pron)) 
+
+data_read_pw_a = raw_read_pw_a %>% 
+    mutate(num = case_when(num==0~"t_tot", num==1~"ld_ortho",num==2~"ld_phono",
+                           num==3~"phi",num==4~"let",num==5~"simu_time"))  %>% 
+    pivot_wider(names_from = "num",values_from = "value")  %>% 
+    mutate(t_tot = as.integer(t_tot), 
+           len=nchar(word)-2, 
+           task="Reading",
+           wordtype="Pseudoword",
+           decodingtype="Augmented",
+           ld_ortho=as.numeric(ld_ortho), 
+           ld_phono=as.numeric(ld_phono), 
+           simu_time=round(as.numeric(simu_time))) %>%
+    mutate(word=gsub("!","",word),
+           phi=gsub("!","", phi),
+           let=gsub("!","",let)) %>%
+    mutate(phi=gsub("~","",phi),
+           let=gsub("~","",let)) %>%
+    inner_join(stim_read %>% select(c(word,len,pron)),by=c("word"="word","len"="len"))  %>%
+    mutate(success = (phi==pron))
+
+data_spell_w_a = raw_spell_w_a %>% 
+    mutate(num = case_when(num==0~"t_tot", num==1~"ld_ortho",num==2~"ld_phono",
+                           num==3~"phi",num==4~"let",num==5~"simu_time"))  %>% 
+    pivot_wider(names_from = "num",values_from = "value")  %>%
+    unnest(cols = c(t_tot, ld_ortho, ld_phono, phi, let, simu_time)) %>%
+    mutate(t_tot = as.integer(t_tot), 
+           len=nchar(word)-2, 
+           task="Spelling",
+           wordtype="Word",
+           decodingtype="Augmented",
+           ld_ortho=as.numeric(ld_ortho), 
+           ld_phono=as.numeric(ld_phono), 
+           simu_time=round(as.numeric(simu_time))) %>%
+    mutate(word=gsub("!","",word),
+           phi=gsub("!","", phi),
+           let=gsub("!","",let)) %>%
+    mutate(phi=gsub("~","",phi),
+           let=gsub("~","",let)) %>%
+    inner_join(stim_spell %>% select(c(word,len,phlen,pron)),by=c("word"="pron","len"="phlen"))  %>%
+    mutate(success = (let==word.y)) %>% select(-c(word.y,len.y))
+
+data_spell_pw_a = raw_spell_pw_a %>%
+    mutate(num = case_when(num==0~"t_tot", num==1~"ld_ortho",num==2~"ld_phono",
+                           num==3~"phi",num==4~"let",num==5~"simu_time"))  %>%
+    pivot_wider(names_from = "num",values_from = "value")  %>%
+    mutate(t_tot = as.integer(t_tot),
+           len=nchar(word)-2,
+           task="Spelling",
+           wordtype="Pseudoword",
+           decodingtype="Augmented",
+           ld_ortho=as.numeric(ld_ortho),
+           ld_phono=as.numeric(ld_phono),
+           simu_time=round(as.numeric(simu_time))) %>%
+    mutate(word=gsub("!","",word),
+           phi=gsub("!","", phi),
+           let=gsub("!","",let)) %>%
+    mutate(phi=gsub("~","",phi),
+          let=gsub("~","",let))  %>%
+    inner_join(stim_spell %>% select(c(word,len,phlen,pron)),by=c("word"="pron","len"="phlen"))  %>%
+    mutate(success = (let==word.y)) %>% select(-c(word.y,len.y))
+
+data_full_read=rbind(data_read_w_c,data_read_pw_c,data_read_w_u,data_read_pw_u,data_read_w_a,data_read_pw_a)
+data_full_spell=rbind(data_spell_w_c,data_spell_pw_c,data_spell_w_u,data_spell_pw_u,data_spell_w_a,data_spell_pw_a)
+```
+
+# - Results
+
+## - Read
+
+```{r}
+data_full_read %>%
+    filter(task=="Reading") %>%
+    group_by(decodingtype,len,wordtype) %>% 
+    summarise(error=sum(!success),n=n()) %>%
+    ggplot(aes(x=len,y=100-(error/n)*100,color=decodingtype)) +
+        geom_point(position = position_dodge(width = 0.1)) + 
+        geom_line(position = position_dodge(width = 0.1)) +
+        theme_classic(14) +
+        labs(x="Longueur orthographique", y="% de succès", color="Type")+
+        theme(legend.key.width= unit(0.3, 'cm')) +
+        ylim(0,100) +
+        facet_wrap(~wordtype)
+```
+
+
+## - Spell
+
+```{r}
+data_full_spell %>%
+    filter(task=="Spelling") %>%
+    group_by(decodingtype,len,wordtype) %>% 
+    summarise(error=sum(!success),n=n()) %>%
+    ggplot(aes(x=len,y=100-(error/n)*100,color=decodingtype)) +
+        geom_point(position = position_dodge(width = 0.1)) + 
+        geom_line(position = position_dodge(width = 0.1)) +
+        theme_classic(14) +
+        labs(x="Longueur phonologique", y="% de succès", color="Type")+
+        theme(legend.key.width= unit(0.3, 'cm')) +
+        ylim(0,100) +
+        facet_wrap(~wordtype)
+```
