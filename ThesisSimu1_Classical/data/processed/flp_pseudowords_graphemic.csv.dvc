@@ -1,0 +1,5 @@
+outs:
+- md5: 2c1acebbc483f9edec98030db18d9743
+  size: 10897
+  hash: md5
+  path: flp_pseudowords_graphemic.csv
