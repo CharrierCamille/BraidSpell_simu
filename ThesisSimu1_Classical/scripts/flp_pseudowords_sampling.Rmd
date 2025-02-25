@@ -83,8 +83,8 @@ data %>% ggplot(aes(x=as.factor(len),y=err)) +
 Sampling of the subset of words which will be used as stimuli for the simulation: pseudowords not leading to mistakes, not with a verry small nused, and with a length between 3 and 8 (as chronolex stimuli): select a number of n = 50 pseudoword by length. And create the adequate .csv if needed (already created).
 
 ```{r}
-data %>% filter(err==0 & nused!=2 & len>2 & len<9) %>% group_by(len) %>% sample_n(50,replace=FALSE)
+data %>% filter(err==0 & nused!=2 & len>3 & len<9) %>% group_by(len) %>% sample_n(100,replace=FALSE)
 
-# data %>% filter(err==0 & nused!=2 & len>2 & len<9) %>% group_by(len) %>% sample_n(50,replace=FALSE) %>%  write.csv("../data/processed/flp_pseudowords_stim.csv",row.names = FALSE)
+data %>% filter(err==0 & nused!=2 & len>3 & len<9) %>% group_by(len) %>% sample_n(100,replace=FALSE) %>% select(c("item","len")) %>%  write.csv("../data/processed/flp_pseudowords_sampled.csv",row.names = FALSE)
 ```
 
