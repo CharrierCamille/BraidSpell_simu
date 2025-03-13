@@ -1,0 +1,5 @@
+outs:
+- md5: 36ad3293cdc22ddfdb7db59035f33c6b
+  size: 264848
+  hash: md5
+  path: chronolex_spell_newword_PM_OP.csv

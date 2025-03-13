@@ -1,0 +1,5 @@
+outs:
+- md5: a1c17a0518ad8047cbddcb7cc6c0e2df
+  size: 117250
+  hash: md5
+  path: chronolex_read_pseudoword_PM_OP.csv
