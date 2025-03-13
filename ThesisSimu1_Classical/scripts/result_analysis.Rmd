@@ -1,0 +1,419 @@
+---
+title: "2024-10-03_ClassicalReading"
+author: "Camille Charrier"
+date: "2024-10-03"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    theme: lumen
+    toc_float: true
+    number_sections: true
+    highlight: tango
+    fig_caption: true
+    code_folding: hide
+---
+
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(warning = FALSE, message = FALSE,fig.align="center") 
+options(encoding = 'UTF-8')
+```
+
+# - Abstract
+
+Calibration of LeakL and ScaleL in orthographic sensory submodel
+
+
+# - Pretreatments
+
+## - Import
+
+Load of packages needed for the further computations
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(stringr)
+library(tidyr)
+library(colorspace)
+library(ggpmisc)
+library(lme4)
+library(lmerTest)
+library(car)
+library(ggpubr)
+```
+
+
+## - Global variables
+
+Load of the global variables needed for the import of databases and the plots
+
+```{r}
+path_r = "C:/Users/Camille/Documents/Camille/Recherche-BRAID/_Thesis/Studies/T1_ClassicalEffects/Reading/ChronolexSimu/csv/chronolex_read_knownword01_PM_X.csv"
+
+path_s = "C:/Users/Camille/Documents/Camille/Recherche-BRAID/_Thesis/Studies/T1_ClassicalEffects/Reading/ChronolexSimu/csv/chronolex_spell_knownword01_PM_X.csv"
+
+path_stim = "C:/Users/Camille/Documents/Camille/Recherche-BRAID/_Thesis/Studies/T1_ClassicalEffects/Reading/ChronolexSimu/chronolex_stim_full.csv"
+
+path_plausible = "C:/Users/Camille/Documents/Camille/Recherche-BRAID/_Thesis/Studies/ResponseAnalysis/csv/chronolex_plausible_pronunciations.csv"
+
+
+cbp <- c("#FFB23D", "#38A29A", "#19609E", "#009E73",
+          "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+cbp2 <- c("#FFB23D", "#18578E", "#35C3B8", "#009E73",
+          "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+```
+
+
+## - Load data
+
+Load the databases into dataframe variables
+
+```{r}
+
+raw_r = read.csv(path_r,sep=",",fileEncoding="UTF-8") %>% select(-c(t,success,error_type,test))
+
+stim = read.csv(path_stim,sep=",",fileEncoding="UTF-8") %>%
+    mutate(Phon=gsub("8","y",Phon)) %>%
+    mutate(Phon=gsub("§","&",Phon)) %>%
+    mutate(Phon=gsub("1","5",Phon))
+
+raw_s = read.csv(path_s,sep=",",fileEncoding="UTF-8") %>% select(-c(t,success,error_type,test))
+
+
+raw_plausible = read.csv(path_plausible,sep=",",fileEncoding="UTF-8") %>%
+    select(c(word,possible_pronunciations,scores))
+
+data_plausible = raw_plausible %>%
+    group_by(word) %>%
+    slice_max(order_by = scores, n = 5)
+
+
+data_simu_r = raw_r %>% 
+    mutate(num = case_when(num==0~"t_tot", num==1~"ld_ortho",num==2~"ld_phono",num==3~"phi",num==4~"let",num==5~"simu_time"))  %>% 
+    pivot_wider(names_from = "num",values_from = "value")  %>% 
+    mutate(t_tot = as.integer(t_tot), 
+           len=nchar(word)-2, 
+           task="Reading", 
+           ld_ortho=as.numeric(ld_ortho), 
+           ld_phono=as.numeric(ld_phono), 
+           simu_time=round(as.numeric(simu_time))) %>%
+    mutate(word=gsub("!","",word),
+           phi=gsub("!","", phi),
+           let=gsub("!","",let)) %>%
+    mutate(phi=gsub("~","",phi))
+
+data_simu_s = raw_s %>% 
+    mutate(num = case_when(num==0~"t_tot", num==1~"ld_ortho",num==2~"ld_phono",num==3~"phi",num==4~"let",num==5~"simu_time"))  %>% 
+    pivot_wider(names_from = "num",values_from = "value")  %>% 
+    mutate(t_tot = as.integer(t_tot), 
+           len=nchar(word)-2, 
+           task="Spelling", 
+           ld_ortho=as.numeric(ld_ortho), 
+           ld_phono=as.numeric(ld_phono), 
+           simu_time=round(as.numeric(simu_time))) %>%
+    mutate(word=gsub("!","",word),
+           phi=gsub("!","", phi),
+           let=gsub("!","",let)) %>%
+    mutate(phi=gsub("~","",phi),
+           let=gsub("~","",let))
+
+data_full_r = data_simu_r %>% 
+    inner_join(stim,by=c("word"="item","len"="len")) %>%
+    mutate(Phon=gsub("8","y",Phon)) %>%
+    mutate(Phon=gsub("§","&",Phon)) %>%
+    mutate(Phon=gsub("1","5",Phon)) %>%
+    mutate(regular_GP=(Nb_Irregular_GP==0), regular_PG=(Nb_Irregular_PG==0)) %>%
+    inner_join(data_plausible,by=c("word"="word")) %>%
+    mutate(plausible=(phi==possible_pronunciations)) %>%
+    group_by(word,t_tot,ld_ortho,ld_phono,phi,let,simu_time,len,task,Phon,NMGrt,regular_GP,regular_PG,freqbooks) %>%
+    summarise(plausible=sum(plausible)) %>%
+    mutate(plausible=(plausible>0)) %>%
+    mutate(success=(phi==Phon))
+
+data_simu_s %>% 
+    inner_join(stim,by=c("word"="Phon","len"="phlen")) %>%
+    mutate(Phon=word, word=item) %>%
+    mutate(Phon=gsub("8","y",Phon)) %>%
+    mutate(Phon=gsub("§","&",Phon)) %>%
+    mutate(Phon=gsub("1","5",Phon)) %>%
+    mutate(regular_GP=(Nb_Irregular_GP==0), regular_PG=(Nb_Irregular_PG==0))
+    
+    
+    
+
+data_full_success = data_full %>% filter(success)
+
+```
+
+
+
+# - Success
+
+```{r}
+data_full %>%
+    select(c(word,t_tot,len,NMGrt,success)) %>%
+    group_by(.) %>%
+    summarise(success_ratio = sum(success)/n())
+
+data_full %>% 
+    filter(!success) %>%
+    select(c(word,let,Phon,phi,t_tot))
+
+data_full %>%
+    group_by(len) %>%
+    summarise(success_ratio = sum(success)/n(),n=n()) %>%
+    ggplot(aes(x=len,y=success_ratio)) +
+        geom_point() +
+        theme_classic(14) +
+        labs(x="Orthographic length", y="Accuracy")
+
+data_full %>%
+    group_by(regular_GP) %>%
+    summarise(success_ratio = sum(success)/n(),n=n()) 
+
+data_analysis = data_full_success %>% 
+    select(c(word,len,t_tot,NMGrt,freqbooks,regular_GP, regular_PG)) %>%
+    pivot_longer(cols=c(t_tot,NMGrt),names_to="type",values_to = "time") %>%
+    mutate(type = case_when(type=="t_tot"~"Simulated", type=="NMGrt"~"Chronolex")) 
+
+```
+
+# - Length effect
+
+## - Plots
+
+```{r}
+data_full_success %>% 
+    select(c(word,len,t_tot,NMGrt)) %>%
+    pivot_longer(cols=c(t_tot,NMGrt),names_to="type",values_to = "time") %>%
+    mutate(type = case_when(type=="t_tot"~"Simulated", type=="NMGrt"~"Chronolex")) %>%
+    group_by(len,type) %>%
+    summarise(n = n(),
+              mean_t = mean(time,na.rm = TRUE),
+              sd_t = sd(time,na.rm=TRUE))%>% 
+    ggplot(aes(x=len,y=mean_t,color=type)) +
+        geom_line() +
+        geom_point()+
+        geom_errorbar(aes(ymin=mean_t-sd_t, ymax=mean_t+sd_t), width=.2,
+                 position=position_dodge(0.05)) +
+        theme_classic(14) +
+        labs(x="Orthographic length", y="Response time", color="Data type")
+
+data_full_success %>% 
+    select(c(word,len,t_tot,NMGrt)) %>%
+    pivot_longer(cols=c(t_tot,NMGrt),names_to="type",values_to = "time") %>%
+    mutate(type = case_when(type=="t_tot"~"Simulated", type=="NMGrt"~"Chronolex")) %>%
+    ggplot(aes(x=len,y=time,color=type)) +
+        geom_jitter()+
+        theme_classic(14) +
+        labs(x="Orthographic length", y="Response time", color="Data type")
+
+
+data_full_success %>% 
+    select(c(word,len,t_tot,NMGrt)) %>%
+    pivot_longer(cols=c(t_tot,NMGrt),names_to="type",values_to = "time") %>%
+    mutate(type = case_when(type=="t_tot"~"Simulated", type=="NMGrt"~"Chronolex")) %>%
+    ggplot(aes(x = len, y = time, color=type)) +
+    geom_smooth(method = "lm", se=FALSE, formula = y ~ x) +
+        stat_poly_eq(formula =  y ~ x,
+               use_label("eq", "R2","p"),
+               parse = TRUE, coef.digits = 3, rr.digits = 3, p.digits = 3) +
+        facet_wrap(. ~ type, scales="free_y")+
+        geom_point() +
+        theme_classic(14)+
+        labs(x="Log(Frequency)",y="Response time",color="Data type")
+
+data_analysis %>% 
+    ggplot(aes(x=as.factor(len),y=time,fill=type)) +
+        geom_boxplot() +
+        theme_classic(14) +
+        labs(x="Orthographic length", y="Response time", fill="Data type")
+
+```
+## - Analysis 
+
+```{r}
+# Tester la normalité pour les données humaines
+shapiro.test(data_analysis$time[data_analysis$type == "Chronolex"])
+# Pas de normalité
+
+# Tester la normalité pour les données de simulation
+shapiro.test(data_analysis$time[data_analysis$type == "Simulated"])
+# Pas de normalité
+
+# Test d'homogénéité des variances
+leveneTest(time ~ type, data = data_analysis)
+# Pas d'homogénéité
+
+#Standardisation des VD
+
+stats <- data_analysis %>%
+  group_by(type) %>%
+  summarise(mean_time = mean(time, na.rm = TRUE),
+            sd_time = sd(time, na.rm = TRUE))
+
+data_analysis <- data_analysis %>%
+  left_join(stats, by = "type") %>%
+  mutate(std_time = (time - mean_time) / sd_time)
+
+p1 = data_analysis%>%
+    group_by(len,type) %>%
+    summarise(n = n(),
+              mean_t = mean(std_time,na.rm = TRUE),
+              sd_t = sd(std_time,na.rm=TRUE)) %>%
+    ggplot(aes(x=len,y=mean_t,color=type))+
+        geom_smooth(method="lm",se=FALSE)+
+        geom_point(position=position_dodge(0.2))+
+        geom_errorbar(aes(ymin=mean_t-sd_t, ymax=mean_t+sd_t), width=.2,
+                 position=position_dodge(0.2)) +
+        theme_classic(14) +
+        labs(x="Orthographic length", y="Standardized response time", color="Data type")
+
+p2 = data_analysis%>%
+    group_by(len,type) %>%
+    summarise(n = n(),
+              mean_t = mean(time,na.rm = TRUE),
+              sd_t = sd(time,na.rm=TRUE)) %>%
+    ggplot(aes(x=len,y=mean_t,color=type))+
+        geom_smooth(method="lm",se=FALSE)+
+        geom_point(position=position_dodge(0.2))+
+        geom_errorbar(aes(ymin=mean_t-sd_t, ymax=mean_t+sd_t), width=.2,
+                 position=position_dodge(0.2)) +
+        theme_classic(14) +
+        facet_wrap(~type)+
+        labs(x="Orthographic length", y="Response time", color="Data type")
+
+ggarrange(
+  p2, p1, 
+  nrow = 2, 
+  labels = c("A","B"),
+  common.legend=TRUE) 
+
+ggsave("length.png",width=6,height=8)
+
+
+p3 = data_analysis %>% 
+    ggplot(aes(x=log(freqbooks),y=std_time,color=type)) +
+        geom_point()+
+        geom_smooth(method="lm",se=FALSE)+
+        theme_classic(14) +
+        labs(x="Log(frequency)", y="Standardized response time", color="Data type") 
+
+p4 = data_analysis %>% 
+    ggplot(aes(x=log(freqbooks),y=time,color=type)) +
+        geom_point()+
+        geom_smooth(method="lm",se=FALSE)+
+        facet_wrap(~type) + 
+        theme_classic(14) +
+        labs(x="Log(frequency)", y="Response time", color="Data type") 
+
+ggarrange(
+  p4, p3, 
+  nrow = 2, 
+  labels = c("A","B"),
+  common.legend=TRUE) 
+
+ggsave("frequency.png",width=6,height=8)
+
+data_analysis %>%
+    mutate(freq_class = as.factor(case_when(freqbooks >=quantile(freqbooks,0.75) ~ "High", 
+                                            freqbooks <=quantile(freqbooks,0.25) ~"Low", 
+                                            .default = "Mid"))) %>% 
+    ggplot(aes(x=len,y=std_time,shape=type,color=freq_class)) +
+        geom_smooth(method = "lm", se=FALSE) +
+        facet_wrap(~type, scales="free_y")+
+        theme_classic(14)+
+        labs(x="Orthographic length",y="Response time",color="Frequency")
+
+data_analysis %>%
+    ggplot(aes(x=as.factor(regular_GP),y=std_time,color=type)) +
+        geom_boxplot() +
+        theme_classic(14)+
+        labs(x="Regularity GP",y="Response time",color="Type")
+
+data_analysis %>%
+    ggplot(aes(x=as.factor(regular_PG),y=std_time,color=type)) +
+        geom_boxplot() +
+        theme_classic(14)+
+        labs(x="Regularity PG",y="Response time",color="Type")
+
+
+# Modèle mixte sur valeurs normalisées pour éviter des effets d'échelle, via gaussian model car gamma interdit les valeurs négatives
+modele_mixte <- lmer(std_time ~ len * type * log(freqbooks)  + (1 | word) + (1|type),
+                           data = data_analysis)
+summary(modele_mixte)
+
+modele_chronolex <- lm(std_time ~ len * log(freqbooks) ,
+                           data = data_analysis %>% filter(type=="Chronolex"))
+summary(modele_chronolex)
+
+modele_simulated <- lm(std_time ~ len * log(freqbooks) ,
+                           data = data_analysis %>% filter(type=="Simulated"))
+summary(modele_simulated)
+```
+
+
+# - Frequency effect
+
+```{r}
+data_full_success %>% 
+    select(c(word,freqbooks,t_tot,NMGrt)) %>%
+    pivot_longer(cols=c(t_tot,NMGrt),names_to="type",values_to = "time") %>%
+    mutate(type = case_when(type=="t_tot"~"Simulated", type=="NMGrt"~"Chronolex")) %>%
+    ggplot(aes(x=log(freqbooks),y=time,color=type)) +
+        geom_point()+
+        theme_classic(14) +
+        labs(x="Log(frequency)", y="Response time", color="Data type") 
+
+data_full_success %>% 
+    select(c(word,freqbooks,t_tot,NMGrt)) %>%
+    pivot_longer(cols=c(t_tot,NMGrt),names_to="type",values_to = "time") %>%
+    mutate(type = case_when(type=="t_tot"~"Simulated", type=="NMGrt"~"Chronolex")) %>%
+    ggplot(aes(x=log(freqbooks),y=time,color=type)) +
+        geom_smooth(method = "lm", se=FALSE, formula = y ~ x) +
+        stat_poly_eq(formula =  y ~ x,
+               use_label("eq", "R2","p"),
+               parse = TRUE, coef.digits = 3, rr.digits = 3, p.digits = 3) +
+        facet_wrap(. ~ type, scales="free_y")+
+        geom_point() +
+        theme_classic(14)+
+        labs(x="Log(Frequency)",y="Response time",color="Data type")
+```
+
+# - Length-frequency interaction
+
+```{r}
+data_full_success %>% 
+    select(c(word,freqbooks,t_tot,NMGrt,len)) %>%
+    pivot_longer(cols=c(t_tot,NMGrt),names_to="type",values_to = "time") %>%
+    mutate(type = case_when(type=="t_tot"~"Simulated", type=="NMGrt"~"Chronolex"))  %>%
+    mutate(freq_class = as.factor(case_when(freqbooks >=quantile(freqbooks,0.66) ~ "High", 
+                                            freqbooks <=quantile(freqbooks,0.33) ~"Low", 
+                                            .default = "Mid"))) %>% 
+    ggplot(aes(x=len,y=time,color=type,shape=freq_class)) +
+        geom_jitter()+
+        theme_classic(14) +
+        labs(x="Orthographic length", y="Response time", color="Data type",shape="Frequency") 
+
+data_full_success %>% 
+    select(c(word,freqbooks,t_tot,NMGrt,len)) %>%
+    pivot_longer(cols=c(t_tot,NMGrt),names_to="type",values_to = "time") %>%
+    mutate(type = case_when(type=="t_tot"~"Simulated", 
+                            type=="NMGrt"~"Chronolex")) %>%
+    mutate(freq_class = as.factor(case_when(freqbooks >=quantile(freqbooks,0.80) ~ "High", 
+                                            freqbooks <=quantile(freqbooks,0.20) ~"Low", 
+                                            .default = "Mid"))) %>% 
+    ggplot(aes(x=len,y=time,color=type,shape=freq_class)) +
+        geom_smooth(method = "lm", se=FALSE, formula = y ~ x) +
+        stat_poly_eq(formula =  y ~ x,
+               use_label("eq", "R2","p"),
+               parse = TRUE, coef.digits = 3, rr.digits = 3, p.digits = 3) +
+        facet_grid(type~freq_class, scales="free_y")+
+        geom_jitter() +
+        theme_classic(14)+
+        labs(x="Log(Frequency)",y="Response time",color="Data type")
+```
+
