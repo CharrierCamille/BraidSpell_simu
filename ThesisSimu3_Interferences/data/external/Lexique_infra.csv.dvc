@@ -1,0 +1,5 @@
+outs:
+- md5: 0eab143b0b43c73448612641358a65e2
+  size: 61211052
+  hash: md5
+  path: Lexique_infra.csv

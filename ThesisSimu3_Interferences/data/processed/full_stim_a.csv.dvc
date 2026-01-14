@@ -1,0 +1,5 @@
+outs:
+- md5: 738486b8671decb0968ca33d5e480dba
+  size: 495640
+  hash: md5
+  path: full_stim_a.csv

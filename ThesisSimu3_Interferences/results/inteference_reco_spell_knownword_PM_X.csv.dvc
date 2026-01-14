@@ -1,0 +1,5 @@
+outs:
+- md5: 4dc0607aa5790b9345c43d97cb9abd84
+  size: 240082
+  hash: md5
+  path: inteference_reco_spell_knownword_PM_X.csv

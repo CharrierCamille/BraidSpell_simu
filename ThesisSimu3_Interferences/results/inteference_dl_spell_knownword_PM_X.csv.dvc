@@ -1,0 +1,5 @@
+outs:
+- md5: 34f471452ef80d5c1d21b52f6af375f1
+  size: 174302
+  hash: md5
+  path: inteference_dl_spell_knownword_PM_X.csv
