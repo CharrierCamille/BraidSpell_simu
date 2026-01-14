@@ -1,0 +1,78 @@
+---
+title: "stim_analysis.Rmd"
+author: "Camille Charrier"
+date: "2025-09-02"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    theme: lumen
+    toc_float: true
+    number_sections: true
+    highlight: tango
+    fig_caption: true
+    code_folding: hide
+---
+
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(warning = FALSE, message = FALSE,fig.align="center") 
+options(encoding = 'UTF-8')
+```
+
+# - Abstract
+
+Script of study of the psycholinguistic of stimuli for the first simulation, on classical effects, of the thesis
+
+# - Pretreatments
+
+## - Import
+
+Load of packages needed for the further computations
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(stringr)
+library(tidyr)
+library(colorspace)
+library(ggpmisc)
+library(lme4)
+library(lmerTest)
+library(car)
+library(ggpubr)
+library(jsonlite)
+library(tidyverse)
+```
+
+
+## - Global variables
+
+Load of the global variables needed for the import of databases and the plots
+
+```{r}
+path_stim_r = "../data/processed/reading_chronolex_stim.csv"
+path_stim_s = "../data/processed/spelling_chronolex_stim.csv"
+
+
+```
+
+
+## - Load data
+
+Load the databases into dataframe variables
+
+```{r}
+
+
+stim_r = read.csv(path_stim_r,sep=",",fileEncoding="UTF-8") 
+stim_s = read.csv(path_stim_s,sep=",",fileEncoding="UTF-8") 
+
+stim$word = paste("!", stim$word, "!" , sep = "")
+stim$pron = paste("!", stim$pron, "!" , sep = "")
+
+
+stim_r %>% mutate(Nlett=nchar(item)-2) %>% group_by(Nlett) %>% summarise(n=n())
+
+stim_s %>% unique() %>% mutate(Nphon=nchar(Phon)-2) %>% group_by(Nphon) %>% summarise(n=n())
+
+```

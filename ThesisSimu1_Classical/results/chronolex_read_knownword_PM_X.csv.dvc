@@ -1,5 +1,5 @@
 outs:
-- md5: b4e9c3edc38576aa2ca7f80b3ba0bbcd
-  size: 303818
+- md5: 407fc1cd9b79b050b6f0da51ebf824d3
+  size: 303064
   hash: md5
   path: chronolex_read_knownword_PM_X.csv

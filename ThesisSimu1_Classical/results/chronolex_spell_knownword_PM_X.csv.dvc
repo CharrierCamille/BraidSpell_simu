@@ -1,5 +1,5 @@
 outs:
-- md5: 149a529b177bc603a8d9a9c31283d49f
-  size: 550409
+- md5: d36e160aa8731efb872a0bd78217dd21
+  size: 259954
   hash: md5
   path: chronolex_spell_knownword_PM_X.csv
