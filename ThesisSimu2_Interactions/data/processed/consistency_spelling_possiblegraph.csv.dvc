@@ -1,0 +1,5 @@
+outs:
+- md5: 2c5a2e9328e42d433440f0815364a407
+  size: 237347
+  hash: md5
+  path: consistency_spelling_possiblegraph.csv

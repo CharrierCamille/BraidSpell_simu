@@ -1,0 +1,5 @@
+outs:
+- md5: e9a731bf8aced17a852cf0a7597f346d
+  size: 627649
+  hash: md5
+  path: consistency_read_knownword_PM_X.csv

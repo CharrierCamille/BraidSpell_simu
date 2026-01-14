@@ -1,0 +1,679 @@
+---
+title: "result_analysis.Rmd"
+author: "Camille Charrier"
+date: "2025-07-22"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    theme: lumen
+    toc_float: true
+    number_sections: true
+    highlight: tango
+    fig_caption: true
+    code_folding: hide
+---
+
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(warning = FALSE, message = FALSE,fig.align="center") 
+options(encoding = 'UTF-8')
+```
+
+# - Abstract
+
+Script of analysis for the 2nd simulation of the thesis
+
+# - Pretreatments
+
+## - Import
+
+Load of packages needed for the further computations
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(stringr)
+library(tidyr)
+library(colorspace)
+library(ggpmisc)
+library(lme4)
+library(lmerTest)
+library(car)
+library(ggpubr)
+library(jsonlite)
+library(tidyverse)
+```
+
+
+## - Plot language
+
+```{r}
+lang_plot = "french"
+# lang_plot = "english"
+```
+
+
+## - Global variables
+
+Load of the global variables needed for the import of databases and the plots
+
+```{r}
+path_read= "../results/consistency_read_knownword_PM_X.csv"
+
+path_spell = "../results/consistency_spell_knownword_PM_X.csv"
+
+path_stim = "../data/processed/full_stim.csv"
+
+path_lexique_infra = "../data/external/Lexique_infra.csv"
+
+path_lexique = "../data/external/lexique383.csv"
+
+path_plausible_read = "../data/processed/consistency_reading_possiblepron.csv"
+
+path_plausible_spell = "../data/processed/consistency_spelling_possiblegraph.csv"
+
+
+
+
+cbp <- c("#FFB23D", "#38A29A", "#19609E", "#009E73",
+          "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+cbp2 <- c("#FFB23D", "#18578E", "#35C3B8", "#009E73",
+          "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+
+cbp <- c("#FFB23D", "#38A29A", "#19609E", "#009E73",
+          "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+cbp2 <- c("#FFB23D", "#18578E", "#35C3B8", "#009E73",
+          "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+safe_colorblind_palette <- c("#88CCEE", "#CC6677", "#DDCC77",
+                             "#44AA99", "#999933", "#882255", "#661100", "#6699CC", "#888888")
+# scales::show_col(safe_colorblind_palette)
+
+
+
+lab <- list(
+  accuracy = if (lang_plot == "english") "Accuracy (%)" else "Taux de bonne réponse (%)",
+  ortho_length = if (lang_plot == "english") "Orthographic length" else "Longueur orthographique",
+  phono_length = if (lang_plot == "english") "Phonological length" else "Longueur phonologique",
+  freq = if (lang_plot == "english") "Frequency" else "Fréquence",
+  log_freq = if (lang_plot == "english") "Frequency (log)" else "Fréquence (log)",
+  word_type = if (lang_plot == "english") "Word type" else "Type de mots",
+  task = if (lang_plot == "english") "Task" else "Tâche",
+  processing_time = if (lang_plot == "english") "Processing time" else "Temps de traitement",
+  new_word = if (lang_plot == "english") "New words" else "Mots nouveaux",
+  known_word = if (lang_plot == "english") "Known words" else "Mots connus",
+  pseudo_word = if (lang_plot == "english") "Pseudowords" else "Pseudo-mots",
+  read = if (lang_plot == "english") "Reading" else "Lecture",
+  spell = if (lang_plot == "english") "Spelling" else "Prod. orthographique",
+  ff_regularity = if (lang_plot == "english") "Feedforward regularity" else "Régularité feedforward",
+  fb_regularity = if (lang_plot == "english") "Feedback regularity" else "Régularité feedback",
+  regular = if (lang_plot == "english") "Regular" else "Régulier",
+  irregular = if (lang_plot == "english") "Irregular" else "Irrégulier",
+  chronolex = "Chronolex",
+  high_freq = if (lang_plot =="english") "High" else "Haute fréquence",
+  low_freq = if (lang_plot =="english") "Low" else "Basse fréquence",
+  data_type = if (lang_plot =="english") "Data type" else "Type de données",
+  simulated = if (lang_plot =="english") "Simulated" else "Simulation",
+  standardized = if (lang_plot =="english") "Standardized response time" else "Temps de réponse standardisé",
+  plausible = if(lang_plot== "english") "% of plausible pronunciation" else "Taux de prononciation plausible (%)",
+  ortho_plausible = if(lang_plot== "english") "% of plausible orthography" else "Taux d'orthographe plausible (%)",
+  ff_consistency = if(lang_plot== "english") "Feedforward consistency" else "Consistance feedforward",
+  fb_consistency = if(lang_plot== "english") "Feedback consistency" else "Consistance feedback",
+  high_consistency = if (lang_plot =="english") "High" else "Consistant",
+  low_consistency = if (lang_plot =="english") "Low" else "Inconsistant"
+)
+
+```
+
+
+## - Load data
+
+Load the databases into dataframe variables
+
+```{r}
+
+raw_read = read.csv(path_read,sep=",",fileEncoding="UTF-8") %>% select(-c(t,success,error_type))
+raw_spell = read.csv(path_spell,sep=",",fileEncoding="UTF-8") %>% select(-c(t,success,error_type))
+
+lexique = read.csv(path_lexique, sep=",", fileEncoding = "UTF-8") %>%
+    select(c(word,pron,voisorth,voisphon)) %>%
+    distinct()%>% 
+    mutate(pron = str_replace_all(pron, "8", "y"))
+
+lexique = lexique %>%
+    mutate(pron = str_replace_all(pron, "1", "5"))
+
+lexique = lexique %>%
+    mutate(pron = str_replace_all(pron, "§", "&")) 
+
+
+stim = read.csv(path_stim,sep=",",fileEncoding="UTF-8") 
+
+stim = stim %>% left_join(lexique,by=c("word","pron"))
+
+
+stim$word = paste("!", stim$word, "!" , sep = "")
+stim$pron = paste("!", stim$pron, "!" , sep = "")
+
+
+lexique_infra = read.csv(path_lexique_infra, sep=",", fileEncoding = "UTF-8") %>%
+    select(-c(cgram)) %>%
+    distinct()
+
+
+
+
+plausible_read = read.csv(path_plausible_read,sep=",",fileEncoding="UTF-8") %>% 
+    mutate(possible_pronunciations=gsub("8","y",possible_pronunciations)) %>%
+    mutate(possible_pronunciations=gsub("§","&",possible_pronunciations)) %>%
+    mutate(possible_pronunciations=gsub("1","5",possible_pronunciations)) %>%
+    mutate(possible_pronunciations = map(possible_pronunciations, ~fromJSON(gsub("'", '"', .x))))
+
+plausible_spell = read.csv(path_plausible_spell,sep=",",fileEncoding="UTF-8")  %>%
+    mutate(possible_spellings = map(possible_spellings, ~fromJSON(gsub("'", '"', .x))))
+
+stim %>% group_by(class_cpg,class_cgp) %>% summarise(n=n()) 
+ 
+stim %>% filter(class_cpg=="High" & class_cgp=="High") 
+
+```
+
+## - Data processing reading
+
+```{r}
+processed_read = raw_read %>% unique() %>% mutate(num = case_when(num==0~"t_tot", num==1~"ld_ortho",num==2~"ld_phono",num==3~"phi",num==4~"let",num==5~"simu_time"))  %>%
+    pivot_wider(names_from = "num",values_from = "value")  %>% 
+    mutate(t_tot = as.integer(t_tot), 
+           len=nchar(word)-2, 
+           task=lab$read, 
+           ld_ortho=as.numeric(ld_ortho), 
+           ld_phono=as.numeric(ld_phono), 
+           simu_time=round(as.numeric(simu_time))) %>%
+    left_join(stim %>% select(c(word,pron,class_cpg,class_cgp,freq,countregTy_GP,countregTy_PG,posregTy_GP,posregTy_PG,voisorth,voisphon)), by = "word") %>%
+    mutate(word=gsub("!","",word),
+           phi=gsub("!","", phi),
+           let=gsub("!","",let)) %>%
+    mutate(let=gsub("~","",let),
+           phi=gsub("~","",phi)) %>%
+    select(-c(test)) %>%
+    mutate(pron=gsub("!","",pron)) %>%
+    mutate(success_strict=(phi==pron), data_type=lab$simulated)  %>%
+    left_join(plausible_read, by = "word")  %>%
+    mutate(success_plausible = map2_lgl(
+      phi, possible_pronunciations,
+      ~ .x %in% .y
+      )) %>%
+    mutate(class_cpg = as.factor(case_when(class_cpg=="Low" ~ lab$low_consistency , class_cpg=="High" ~ lab$high_consistency )),
+           class_cgp = as.factor(case_when(class_cgp=="Low" ~ lab$low_consistency , class_cgp=="High" ~ lab$high_consistency)),
+           reg_cpg = as.factor(case_when(countregTy_PG!=0 ~ lab$irregular,countregTy_PG==0 ~ lab$regular)),
+           reg_cgp = as.factor(case_when(countregTy_GP!=0 ~ lab$irregular, countregTy_GP==0 ~ lab$regular)))%>%
+    mutate(class_cpg = fct_relevel(class_cpg, lab$high_consistency, lab$low_consistency), 
+           class_cgp = fct_relevel(class_cgp, lab$high_consistency, lab$low_consistency),
+           reg_cpg = fct_relevel(reg_cpg, lab$regular, lab$irregular),
+           reg_cgp = fct_relevel(reg_cgp, lab$regular, lab$irregular))
+    
+
+processed_read
+
+```
+
+## - Data processing spelling
+
+```{r}
+processed_spell = raw_spell %>% unique() %>% mutate(num = case_when(num==0~"t_tot", num==1~"ld_ortho",num==2~"ld_phono",num==3~"phi",num==4~"let",num==5~"simu_time"))  %>% 
+    pivot_wider(names_from = "num",values_from = "value")  %>% 
+    mutate(t_tot = as.integer(t_tot), 
+           phlen=nchar(word)-2, 
+           task=lab$spell, 
+           ld_ortho=as.numeric(ld_ortho), 
+           ld_phono=as.numeric(ld_phono), 
+           simu_time=round(as.numeric(simu_time))) %>%
+    left_join(stim %>% select(c(word,pron,class_cpg,class_cgp,freq,countregTy_GP,countregTy_PG,countregTy_PG,posregTy_GP,posregTy_PG,voisorth,voisphon)), by = c("word"="pron")) %>%
+    mutate(word=gsub("!","",word),
+           phi=gsub("!","", phi),
+           let=gsub("!","",let)) %>%
+    mutate(let=gsub("~","",let),
+           phi=gsub("~","",phi)) %>%
+    select(-c(test,word)) %>%
+    mutate(word=word.y) %>%
+    select(-c(word.y)) %>%
+    mutate(word=gsub("!","",word)) %>%
+    mutate(success_strict=(word==let), data_type=lab$simulated)%>%
+    left_join(plausible_spell, by = c("word" = "word"))  %>%
+    mutate(success_plausible = map2_lgl(
+      let, possible_spellings,
+      ~ .x %in% .y
+      )) %>%
+    mutate(class_cpg = as.factor(case_when(class_cpg=="Low" ~ lab$low_consistency , class_cpg=="High" ~ lab$high_consistency )),
+           class_cgp = as.factor(case_when(class_cgp=="Low" ~ lab$low_consistency , class_cgp=="High" ~ lab$high_consistency)),
+           reg_cpg = as.factor(case_when(countregTy_PG!=0 ~ lab$irregular,countregTy_PG==0 ~ lab$regular)),
+           reg_cgp = as.factor(case_when(countregTy_GP!=0 ~ lab$irregular, countregTy_GP==0 ~ lab$regular))) %>%
+    mutate(class_cpg = fct_relevel(class_cpg, lab$high_consistency, lab$low_consistency), 
+           class_cgp = fct_relevel(class_cgp, lab$high_consistency, lab$low_consistency),
+           reg_cpg = fct_relevel(reg_cpg, lab$regular, lab$irregular),
+           reg_cgp = fct_relevel(reg_cgp, lab$regular, lab$irregular))
+    
+processed_spell %>% group_by(word) %>% summarise(n=n())
+
+```
+
+# - Results
+
+## - Reading 
+
+### - Accuracy
+
+#### - General
+
+```{r}
+processed_read %>% group_by(data_type) %>%
+    summarise(accuracy = sum(success_strict)/n()*100) 
+
+processed_read %>% group_by(class_cpg, class_cgp) %>%
+    summarise(accuracy = sum(success_strict)/n()*100) 
+
+processed_read %>% group_by(reg_cgp) %>%
+    summarise(accuracy = sum(success_strict)/n()*100) 
+
+
+p1 = processed_read %>% group_by(data_type) %>%
+    summarise(accuracy = sum(success_strict)/n()*100) %>%
+    ggplot(aes(x=data_type,y=accuracy, fill=data_type)) +
+        geom_col(color="black") +
+        labs(x=lab$type_word, y=lab$accuracy, fill=lab$word_type) +
+        theme_classic(14) +
+        scale_fill_manual(values = safe_colorblind_palette) +
+        ylim(0,100)+
+        theme(legend.position = "none")
+
+processed_read%>% group_by(data_type) %>%
+    summarise(plausible = sum(success_plausible)/n()*100) 
+
+p2 = processed_read  %>% group_by(data_type) %>%
+    summarise(plausible = sum(success_plausible)/n()*100) %>%
+    ggplot(aes(x=data_type,y=plausible, fill=data_type)) +
+        geom_col(color="black") +
+        labs(x=lab$type_word, y=lab$plausible, fill=lab$word_type) +
+        theme_classic(14) +
+        scale_fill_manual(values = safe_colorblind_palette) +
+        ylim(0,100)+
+        theme(legend.position = "none")
+
+processed_read %>% filter(!success_plausible)
+
+ggarrange(
+  p1, p2,
+  nrow = 1,
+  labels = c("A","B"))
+
+ggsave("../images/reading_lexicality_acc.png",width=6,height=4)
+```
+#### - Consistency
+
+
+```{r}
+p1 = processed_read %>%
+    group_by(class_cpg, class_cgp) %>%
+    summarise(accuracy = sum(success_strict)/n()*100) %>%
+    ggplot(aes(fill = class_cpg, y = accuracy, x = class_cgp)) +
+        geom_bar(stat = "identity", position = position_dodge(), color="black") +
+        labs(fill = lab$fb_consistency, y =lab$accuracy, x = lab$ff_consistency) +
+        theme_classic(14) +
+        scale_fill_manual(values = safe_colorblind_palette) +
+        coord_cartesian(ylim = c(80, 100))
+
+
+p1
+
+ggsave("../images/reading_consistency_acc.png",width=6,height=4)
+```
+
+#### - Regularity
+ 
+
+```{r}
+p1 = processed_read %>%
+    group_by(reg_cpg, reg_cgp) %>%
+    summarise(accuracy = sum(success_strict)/n()*100) %>%
+    ggplot(aes(fill = reg_cpg, y = accuracy, x = reg_cgp)) +
+        geom_bar(stat = "identity", position = position_dodge(), color="black") +
+        labs(fill = lab$fb_regularity, y =lab$accuracy, x = lab$ff_regularity) +
+        theme_classic(14) +
+        scale_fill_manual(values = safe_colorblind_palette) +
+        coord_cartesian(ylim = c(80, 100))
+
+
+p1
+
+ggsave("../images/reading_regularity_acc.png",width=6,height=4)
+```
+
+### - Processing time
+
+#### - Analyses
+
+```{r}
+
+processed_read %>% group_by(t_tot==3000 | !success_strict) %>% summarise(n=n())
+processed_read %>% group_by(t_tot==3000) %>% summarise(n=n())
+processed_read %>% group_by(success_strict) %>% summarise(n=n())
+
+
+processed_read %>% group_by(class_cpg,class_cgp,reg_cpg,reg_cgp) %>% summarise(n=n())
+
+
+# Tester la normalité pour les données de simulation
+
+shapiro.test(processed_read_all$t_tot[processed_read$success_strict])
+
+# Pas de normalité
+
+#Modèle consistancy
+
+processed_read = processed_read %>% mutate(class_cgp_binary = case_when(class_cgp==lab$high_consistency~1, class_cgp!=lab$high_consistency~-1), class_cpg_binary = case_when(class_cpg==lab$high_consistency~1, class_cpg!=lab$high_consistency~-1), reg_cpg_binary = case_when(reg_cpg==lab$regular~1, reg_cpg!=lab$regular~-1), reg_cgp_binary = case_when(reg_cgp==lab$regular~1, reg_cgp!=lab$regular~-1))
+
+modele_simulated1 <- lm(t_tot ~ class_cgp_binary * class_cpg_binary + voisorth + voisphon,
+                           data = processed_read %>% filter( success_strict & t_tot!=3000))
+summary(modele_simulated1)
+
+modele_simulated2 <- lm(t_tot ~ class_cgp_binary * class_cpg_binary * voisorth * voisphon,
+                           data = processed_read %>% filter( success_strict & t_tot!=3000))
+summary(modele_simulated2)
+
+anova(modele_simulated1, modele_simulated2)
+
+#Modèle  reg
+
+modele_simulated <- lm(t_tot ~ reg_cpg_binary * reg_cgp_binary + voisorth + voisphon,
+                           data = processed_read %>% filter( success_strict & t_tot!=3000))
+summary(modele_simulated)
+
+
+
+```
+
+#### - Consistency
+
+
+```{r}
+p1 = processed_read %>%
+    group_by(class_cpg, class_cgp) %>%
+    summarise(mean_time = mean(t_tot,na.rm = TRUE), sd_time = sd(t_tot,na.rm = TRUE)) %>%
+    ggplot(aes(fill = class_cpg, y = mean_time, x = class_cgp)) +
+        geom_bar(stat = "identity", position = position_dodge(), color="black") +
+        geom_line(position=position_dodge(0.9)) +
+        geom_errorbar(aes(ymin=mean_time-sd_time, ymax=mean_time+sd_time), width=.2,
+                 position=position_dodge(0.9)) +
+        labs(fill = lab$fb_consistency, y =lab$processing_time, x = lab$ff_consistency) +
+        theme_classic(14) +
+        scale_fill_manual(values = safe_colorblind_palette) 
+
+
+ processed_read %>%
+    group_by(class_cgp)%>%
+    summarise(mean_time = mean(t_tot,na.rm = TRUE), sd_time = sd(t_tot,na.rm = TRUE))
+ 
+  processed_read %>%
+    group_by(class_cpg)%>%
+    summarise(mean_time = mean(t_tot,na.rm = TRUE), sd_time = sd(t_tot,na.rm = TRUE))
+
+p1
+
+ggsave("../images/reading_consistency_pt.png",width=6,height=4)
+```
+
+#### - Regularity
+
+
+```{r}
+p1 = processed_read %>%
+    group_by(reg_cpg, reg_cgp) %>%
+    summarise(mean_time = mean(t_tot,na.rm = TRUE), sd_time = sd(t_tot,na.rm = TRUE)) %>%
+    ggplot(aes(fill = reg_cpg, y = mean_time, x = reg_cgp)) +
+        geom_bar(stat = "identity", position = position_dodge(), color="black") +
+        geom_line(position=position_dodge(0.9)) +
+        geom_errorbar(aes(ymin=mean_time-sd_time, ymax=mean_time+sd_time), width=.2,
+                 position=position_dodge(0.9)) +
+        labs(fill = lab$fb_regularity, y =lab$processing_time, x = lab$ff_regularity) +
+        theme_classic(14) +
+        scale_fill_manual(values = safe_colorblind_palette)
+
+
+p1
+
+ggsave("../images/reading_regularity_pt.png",width=6,height=4)
+```
+
+#### - Position de l'irrégularité
+
+```{r}
+processed_read  %>% group_by(posregTy_GP) %>%
+    summarise(mean_time = mean(t_tot,na.rm = TRUE), sd_time = sd(t_tot,na.rm = TRUE)) %>%
+    ggplot(aes(x=posregTy_GP, y=mean_time))  +
+        geom_smooth(method = "lm", se=FALSE, formula = y ~ x) +
+        geom_point(size=2.5) +
+        theme_classic(14)+
+        labs(x="Position de l'irrégularité GP",y=lab$processing_time) + 
+        scale_color_manual(values =safe_colorblind_palette)+
+        theme(legend.position = "none")
+
+processed_read  %>% group_by(posregTy_PG) %>%
+    summarise(mean_time = mean(t_tot,na.rm = TRUE), sd_time = sd(t_tot,na.rm = TRUE)) %>%
+    ggplot(aes(x=posregTy_PG, y=mean_time))  +
+        geom_smooth(method = "lm", se=FALSE, formula = y ~ x) +
+        geom_point(size=2.5) +
+        theme_classic(14)+
+        labs(x="Position de l'irrégularité PG",y=lab$processing_time) + 
+        scale_color_manual(values =safe_colorblind_palette)+
+        theme(legend.position = "none")
+```
+
+
+
+## - Spelling 
+
+### - Accuracy
+
+#### - General
+
+```{r}
+processed_spell %>% group_by(data_type) %>%
+    summarise(accuracy = sum(success_strict)/n()*100) 
+
+p1 = processed_spell %>% group_by(data_type) %>%
+    summarise(accuracy = sum(success_strict)/n()*100) %>%
+    ggplot(aes(x=data_type,y=accuracy, fill=data_type)) +
+        geom_col(color="black") +
+        labs(x=lab$type_word, y=lab$accuracy, fill=lab$word_type) +
+        theme_classic(14) +
+        scale_fill_manual(values = safe_colorblind_palette) +
+        ylim(0,100)+
+        theme(legend.position = "none")
+
+processed_spell %>% group_by(data_type) %>%
+    summarise(plausible = sum(success_plausible)/n()*100) 
+
+p2 = processed_spell  %>% group_by(data_type) %>%
+    summarise(plausible = sum(success_plausible)/n()*100) %>%
+    ggplot(aes(x=data_type,y=plausible, fill=data_type)) +
+        geom_col(color="black") +
+        labs(x=lab$type_word, y=lab$plausible, fill=lab$word_type) +
+        theme_classic(14) +
+        scale_fill_manual(values = safe_colorblind_palette) +
+        ylim(0,100)+
+        theme(legend.position = "none")
+
+processed_spell %>% filter(!success_plausible)
+
+ggarrange(
+  p1, p2,
+  nrow = 1,
+  labels = c("A","B"))
+
+ggsave("../images/spelling_lexicality_acc.png",width=6,height=4)
+```
+#### - Consistency
+
+
+```{r}
+p1 = processed_spell %>%
+    group_by(class_cpg, class_cgp) %>%
+    summarise(accuracy = sum(success_strict)/n()*100) %>%
+    ggplot(aes(fill = class_cgp , y = accuracy, x = class_cpg)) +
+        geom_bar(stat = "identity", position = position_dodge(), color="black") +
+        labs(fill = lab$fb_consistency, y =lab$accuracy, x = lab$ff_consistency) +
+        theme_classic(14) +
+        scale_fill_manual(values = safe_colorblind_palette) +
+        coord_cartesian(ylim = c(80, 100))
+
+
+p1
+
+ggsave("../images/spelling_consistency_acc.png",width=6,height=4)
+
+ processed_spell %>%
+    group_by(class_cpg, class_cgp) %>%
+    summarise(accuracy = sum(success_strict)/n()*100)
+```
+
+#### - Regularity
+
+
+```{r}
+p1 = processed_spell %>%
+    group_by(reg_cpg, reg_cgp) %>%
+    summarise(accuracy = sum(success_strict)/n()*100) %>%
+    ggplot(aes(fill = reg_cgp , y = accuracy, x = reg_cpg)) +
+        geom_bar(stat = "identity", position = position_dodge(), color="black") +
+        labs(fill = lab$fb_regularity, y =lab$accuracy, x = lab$ff_regularity) +
+        theme_classic(14) +
+        scale_fill_manual(values = safe_colorblind_palette) +
+        coord_cartesian(ylim = c(80, 100))
+
+
+p1
+
+ggsave("../images/spelling_regularity_acc.png",width=6,height=4)
+
+ processed_spell %>%
+    group_by(reg_cpg) %>%
+    summarise(accuracy = sum(success_strict)/n()*100) 
+
+```
+
+
+### - Processing time 
+
+
+#### - Analyses
+
+```{r}
+
+processed_spell %>% group_by(t_tot==3000 | !success_strict) %>% summarise(n=n())
+processed_spell %>% group_by(t_tot==3000) %>% summarise(n=n())
+processed_spell %>% group_by(success_strict) %>% summarise(n=n())
+
+
+processed_spell %>% group_by(class_cpg,class_cgp,reg_cpg,reg_cgp) %>% summarise(n=n())
+
+
+# Tester la normalité pour les données de simulation
+
+shapiro.test(processed_spell$t_tot[processed_spell$success_strict|processed_spell$t_tot!=3000])
+
+# Pas de normalité
+
+#Modèle consistancy
+
+processed_spell = processed_spell %>% mutate(class_cgp_binary = case_when(class_cgp==lab$high_consistency~1, class_cgp!=lab$high_consistency~-1), class_cpg_binary = case_when(class_cpg==lab$high_consistency~1, class_cpg!=lab$high_consistency~-1), reg_cpg_binary = case_when(reg_cpg==lab$regular~1, reg_cpg!=lab$regular~-1), reg_cgp_binary = case_when(reg_cgp==lab$regular~1, reg_cgp!=lab$regular~-1), len=nchar(let))
+
+modele_simulated <- lm(t_tot ~ (class_cgp_binary * class_cpg_binary) + voisorth + voisphon,
+                           data = processed_spell %>% filter( success_strict & t_tot!=3000))
+summary(modele_simulated)
+
+#Modèle  reg
+
+modele_simulated <- lm(t_tot ~  reg_cpg_binary * reg_cgp_binary + voisorth + voisphon,
+                           data = processed_spell %>% filter( success_strict & t_tot!=3000))
+summary(modele_simulated)
+```
+
+
+#### - Consistency
+
+
+```{r}
+p1 = processed_spell %>%
+    group_by(class_cpg, class_cgp) %>%
+    summarise(mean_time = mean(t_tot,na.rm = TRUE), sd_time = sd(t_tot,na.rm = TRUE)) %>%
+    ggplot(aes(fill = class_cgp , y = mean_time, x = class_cpg)) +
+        geom_bar(stat = "identity", position = position_dodge(), color="black") +
+        geom_line(position=position_dodge(0.9)) +
+        geom_errorbar(aes(ymin=mean_time-sd_time, ymax=mean_time+sd_time), width=.2,
+                 position=position_dodge(0.9)) +
+        labs(fill = lab$fb_consistency, y =lab$processing_time, x = lab$ff_consistency) +
+        theme_classic(14) +
+        scale_fill_manual(values = safe_colorblind_palette)
+
+
+processed_spell %>%
+    group_by(class_cpg) %>%
+    summarise(mean_time = mean(t_tot,na.rm = TRUE), sd_time = sd(t_tot,na.rm = TRUE))
+
+processed_spell %>%
+    group_by(class_cgp) %>%
+    summarise(mean_time = mean(t_tot,na.rm = TRUE), sd_time = sd(t_tot,na.rm = TRUE))
+
+p1
+
+ggsave("../images/spelling_consistency_pt.png",width=6,height=4)
+```
+
+#### - Regularity
+
+
+```{r}
+p1 = processed_spell %>%
+    group_by(reg_cpg, reg_cgp) %>%
+    summarise(mean_time = mean(t_tot,na.rm = TRUE), sd_time = sd(t_tot,na.rm = TRUE)) %>%
+    ggplot(aes(fill = reg_cgp , y = mean_time, x = reg_cpg)) +
+        geom_bar(stat = "identity", position = position_dodge(), color="black") +
+        geom_line(position=position_dodge(0.9)) +
+        geom_errorbar(aes(ymin=mean_time-sd_time, ymax=mean_time+sd_time), width=.2,
+                 position=position_dodge(0.9)) +
+        labs(fill = lab$fb_regularity, y =lab$processing_time, x = lab$ff_regularity) +
+        theme_classic(14) +
+        scale_fill_manual(values = safe_colorblind_palette) 
+
+
+p1
+
+ggsave("../images/spelling_regularity_pt.png",width=6,height=4)
+```
+#### - Position de l'irrégularité
+
+```{r}
+
+processed_spell  %>% group_by(posregTy_PG) %>%
+    summarise(mean_time = mean(t_tot,na.rm = TRUE), sd_time = sd(t_tot,na.rm = TRUE)) %>%
+    ggplot(aes(x=posregTy_PG, y=mean_time))  +
+        geom_smooth(method = "lm", se=FALSE, formula = y ~ x) +
+        geom_point(size=2.5) +
+        theme_classic(14)+
+        labs(x=lab$ortho_length,y=lab$processing_time) + 
+        scale_color_manual(values =safe_colorblind_palette)+
+        theme(legend.position = "none")
+
+processed_spell  %>% group_by(posregTy_GP) %>%
+    summarise(mean_time = mean(t_tot,na.rm = TRUE), sd_time = sd(t_tot,na.rm = TRUE)) %>%
+    ggplot(aes(x=posregTy_GP, y=mean_time))  +
+        geom_smooth(method = "lm", se=FALSE, formula = y ~ x) +
+        geom_point(size=2.5) +
+        theme_classic(14)+
+        labs(x=lab$ortho_length,y=lab$processing_time) + 
+        scale_color_manual(values =safe_colorblind_palette)+
+        theme(legend.position = "none")
+```

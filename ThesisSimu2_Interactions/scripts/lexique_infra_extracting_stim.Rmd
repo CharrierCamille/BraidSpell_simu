@@ -1,0 +1,193 @@
+---
+title: "lexique_infra_extracting_stim.Rmd"
+author: "Camille Charrier"
+date: "2025-06-18"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    theme: lumen
+    toc_float: true
+    number_sections: true
+    highlight: tango
+    fig_caption: true
+    code_folding: hide
+---
+
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(warning = FALSE, message = FALSE,fig.align="center") 
+options(encoding = 'UTF-8')
+```
+
+# - Abstract
+
+Script of analysis for the 1st simulation, on classical effects, of the thesis
+
+# - Pretreatments
+
+## - Import
+
+Load of packages needed for the further computations
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(stringr)
+library(tidyr)
+library(colorspace)
+library(ggpmisc)
+library(lme4)
+library(lmerTest)
+library(car)
+library(ggpubr)
+library(jsonlite)
+library(tidyverse)
+```
+
+
+## - Plot language
+
+```{r}
+# lang_plot = "french"
+lang_plot = "english"
+```
+
+
+## - Global variables
+
+Load of the global variables needed for the import of databases and the plots
+
+```{r}
+path_lexique_infra = "../data/external/Lexique_infra.csv"
+
+path_lexique_383 = "../data/external/lexique383.csv"
+
+safe_colorblind_palette <- c("#88CCEE", "#CC6677", "#DDCC77",
+                             "#44AA99", "#999933", "#882255", "#661100", "#6699CC", "#888888")
+# scales::show_col(safe_colorblind_palette)
+
+lab <- list(
+  accuracy = if (lang_plot == "english") "Accuracy (%)" else "Taux de bonne réponse (%)",
+  ortho_length = if (lang_plot == "english") "Orthographic length" else "Longueur orthographique",
+  phono_length = if (lang_plot == "english") "Phonological length" else "Longueur phonologique",
+  freq = if (lang_plot == "english") "Frequency" else "Fréquence",
+  log_freq = if (lang_plot == "english") "Frequency (log)" else "Fréquence (log)",
+  word_type = if (lang_plot == "english") "Word type" else "Type de mots",
+  task = if (lang_plot == "english") "Task" else "Tâche",
+  processing_time = if (lang_plot == "english") "Processing time" else "Temps de traitement",
+  new_word = if (lang_plot == "english") "New words" else "Mots nouveaux",
+  known_word = if (lang_plot == "english") "Known words" else "Mots connus",
+  pseudo_word = if (lang_plot == "english") "Pseudowords" else "Pseudo-mots",
+  read = if (lang_plot == "english") "Reading" else "Lecture",
+  spell = if (lang_plot == "english") "Spelling" else "Prod. orthographique",
+  regularity = if (lang_plot == "english") "Regularity" else "Régularité",
+  regular = if (lang_plot == "english") "Regular" else "Régulier",
+  irregular = if (lang_plot == "english") "Irregular" else "Irrégulier",
+  chronolex = "Chronolex",
+  high_freq = if (lang_plot =="english") "High" else "Haute fréquence",
+  low_freq = if (lang_plot =="english") "Low" else "Basse fréquence",
+  data_type = if (lang_plot =="english") "Data type" else "Type de données",
+  simulated = if (lang_plot =="english") "Simulated" else "Simulation",
+  standardized = if (lang_plot =="english") "Standardized response time" else "Temps de réponse standardisé",
+  plausible = if(lang_plot== "english") "% of plausible pronunciation" else "% de prononciation plausible",
+  ff_consistency = if(lang_plot== "english") "Feedforward consistency" else "Consistance feedforward",
+  fb_consistency = if(lang_plot== "english") "Feedback consistency" else "Consistance feedback",
+  high_consistency = if (lang_plot =="english") "High" else "Consistant",
+  low_consistency = if (lang_plot =="english") "Low" else "Inconsistant"
+)
+
+```
+
+## - Load data
+
+Load the databases into dataframe variables
+
+```{r}
+lexique_infra = read.csv(path_lexique_infra, sep=",", fileEncoding = "UTF-8") %>%
+    distinct()
+
+lexique383 = read.csv(path_lexique_383,sep=",",fileEncoding="UTF-8") %>% mutate(freq=freqlivres)
+
+lexique_infra = left_join(lexique_infra, lexique383, by=c("word","pron","cgram")) %>% unique() %>% filter(freq>0)
+
+lexique_infra = lexique_infra %>%
+    filter(!str_detect(pron,'x')) %>% 
+    filter(!str_detect(word,'\\.'))  %>% 
+    filter(!str_detect(word,"'"))  %>%
+    filter(cgram=="NOM") %>%
+    filter(genre=="m") %>% 
+    filter(nombre!="p") %>% 
+    mutate(pron = str_replace_all(pron, "8", "y"), gpmatch = str_replace_all(gpmatch, "8", "y"))
+
+lexique_infra = lexique_infra %>% 
+    mutate(pron = str_replace_all(pron, "1", "5"), gpmatch = str_replace_all(gpmatch, "1", "5")) 
+
+lexique_infra = lexique_infra %>%
+    mutate(pron = str_replace_all(pron, "§", "&"), gpmatch = str_replace_all(gpmatch, "§", "&")) 
+```
+
+
+##- Prepare data
+
+```{r}
+lexique_infra = lexique_infra %>% mutate(Freq_PG = as.numeric(gsub(",", ".", Freq_PG))) %>%
+    mutate(class_cpg=as.factor(case_when(Freq_PG >=quantile(Freq_PG,0.75) ~ lab$high_consistency, 
+                                            Freq_PG <=quantile(Freq_PG,0.25) ~ lab$low_consistency,
+                                            .default = "Mid"))) %>%
+    mutate(Freq_GP = as.numeric(gsub(",", ".", Freq_GP))) %>%
+    mutate(class_cgp=as.factor(case_when(Freq_GP >=quantile(Freq_GP,0.75) ~ lab$high_consistency, 
+                                            Freq_GP <=quantile(Freq_GP,0.25) ~ lab$low_consistency,
+                                            .default = "Mid"))) %>%
+    mutate(minfreqgraph_PG = as.numeric(gsub(",", ".", minfreqgraph_PG))) %>%
+    mutate(class_cpg_min=as.factor(case_when(minfreqgraph_PG >=quantile(minfreqgraph_PG,0.75) ~ lab$high_consistency, 
+                                            minfreqgraph_PG <=quantile(minfreqgraph_PG,0.25) ~ lab$low_consistency,
+                                            .default = "Mid"))) %>%
+    mutate(minfreqgraph_GP = as.numeric(gsub(",", ".", minfreqgraph_GP))) %>%
+    mutate(class_cgp_min=as.factor(case_when(minfreqgraph_GP >=quantile(minfreqgraph_GP,0.75) ~ lab$high_consistency, 
+                                            minfreqgraph_GP <=quantile(minfreqgraph_GP,0.25) ~ lab$low_consistency,
+                                            .default = "Mid")))%>% 
+    filter(nchar(word)>=4 & nchar(word)<=8 & nchar(pron)>=4 & nchar(pron)<=8)
+
+```
+
+
+# - Extract stim (min CPG CGP)
+
+```{r}
+# stim CGP+ CPG+
+lexique_infra %>% filter(class_cgp_min==lab$high_consistency, class_cpg_min==lab$high_consistency) 
+
+# stim CGP- CPG-
+lexique_infra %>% filter(class_cgp_min==lab$low_consistency, class_cpg_min==lab$low_consistency) 
+
+# stim CGP+ CPG-
+lexique_infra %>% filter(class_cgp_min==lab$high_consistency, class_cpg_min==lab$low_consistency) 
+
+# stim CGP+ CPG-
+lexique_infra %>% filter(class_cgp_min==lab$low_consistency, class_cpg_min==lab$high_consistency) 
+    
+```
+
+# - Extract stim (mean)
+
+```{r}
+# stim CGP+ CPG+
+stim1 = lexique_infra %>% filter(class_cgp==lab$high_consistency & class_cpg==lab$high_consistency) 
+
+# stim CGP- CPG-
+stim2 = lexique_infra %>% filter(class_cgp==lab$low_consistency & class_cpg==lab$low_consistency) 
+
+# stim CGP+ CPG-
+stim3 = lexique_infra %>% filter(class_cgp==lab$high_consistency & class_cpg==lab$low_consistency) 
+
+# stim CGP+ CPG-
+stim4 = lexique_infra %>% filter(class_cgp==lab$low_consistency & class_cpg==lab$high_consistency) 
+
+stim = rbind(stim1,stim2,stim3,stim4) %>% select(-c(class_cgp_min, class_cpg_min))
+
+stim %>% group_by(class_cgp,class_cpg) %>% summarise(n=n(), len = mean(nblettres), phlen = mean(nbphons), nsyll = mean(nbsyll), freq = mean(freq), Freq_GP=mean(Freq_GP), Freq_PG = mean(Freq_PG), voisorth =mean(voisorth), voisphon=mean(voisphon))
+
+# write.csv(stim ,"../data/processed/full_stim.csv",row.names = FALSE)
+
+
+```

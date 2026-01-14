@@ -1,0 +1,5 @@
+outs:
+- md5: fa2b94d145609e15ef82cd8439da5ff5
+  size: 1026009
+  hash: md5
+  path: consistency_spell_knownword_PM_X.csv
