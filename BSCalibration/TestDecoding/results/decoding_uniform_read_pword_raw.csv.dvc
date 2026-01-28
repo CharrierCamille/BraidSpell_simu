@@ -1,5 +1,0 @@
-outs:
-- md5: 1787f567b68ad83b17df5416c296e261
-  size: 23661
-  hash: md5
-  path: decoding_uniform_read_pword_raw.csv

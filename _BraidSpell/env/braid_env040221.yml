@@ -1,0 +1,13 @@
+name: braid_env
+channels:
+  - defaults
+dependencies:
+  - python=3.8
+  - matplotlib
+  - numba
+  - pandas
+  - bokeh
+  - seaborn
+  - scikit-learn
+  - xlrd
+prefix: /home/alexandra/miniconda3/envs/Braid

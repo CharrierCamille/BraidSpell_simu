@@ -1,5 +1,0 @@
-outs:
-- md5: f10e836778727af3dd8a085adcd7ca64
-  size: 23432
-  hash: md5
-  path: decoding_classical_read_word_raw.csv

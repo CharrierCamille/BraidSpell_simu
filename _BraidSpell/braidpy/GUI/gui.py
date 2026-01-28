@@ -1,0 +1,752 @@
+# -*- coding: utf-8 -*-
+import copy
+import math
+
+import os
+import pdb
+
+import sys
+
+sys.path.append("../")
+import numpy as np
+from PIL import Image
+
+from bokeh.io import curdoc, export_png
+from bokeh.palettes import Plasma256, Colorblind8, Colorblind, grey, Plasma9
+from bokeh.layouts import row, column, gridplot
+from bokeh.models import LinearColorMapper, FixedTicker, ColumnDataSource, LabelSet, Range1d, Text, Legend, Button
+from bokeh.models.widgets import RadioButtonGroup, CheckboxButtonGroup, Div
+from bokeh.plotting import figure
+from time import time
+from scipy.stats import entropy
+import logging
+
+
+class gui:
+
+    #############################
+    ####### INIT INTERFACE ######
+    #############################
+
+    def __init__(self, simu=None):
+        """
+        :param simu: simu object that contains the results to be plotted.
+        """
+        self.path = "home/alexandra/braidpy/"
+        # The above code is setting the value of the instance variable `impath` to the relative path of a directory containing letter images. The
+        # directory is located two levels up from the current directory and is named "letterImages". The images in the directory have a resolution of
+        # 795x917 pixels.
+
+        self.impath = '/home/alexandra/braidpy/resources/letterImages/795x917/'
+        self.threshold_ld = 0.95
+        self.threshold_wd = 0.9
+        self.simu = simu
+        self.one_pos = True
+        self.mat = {key: {dist: None for dist in ['percept', 'word', 'ld', 'gamma', 'gamma_sem', 'sim_sem', 'L', 'sim']}
+                    for key in self.simu.model.op()}
+        self.figures = {key: {dist: None for dist in
+                              ['word', 'ld', 'gamma', 'gamma_sem', 'sim_sem', 'percept', "word_sim_att", "H", "L"]} for
+                        key in self.simu.model.op()}
+        self.att_fix = {mod: None for mod in self.simu.model.op()}
+        self.imletters = None
+        self.letters = None
+        self.imletters = None
+        self.source_dist = None
+        self.source_global_letters = None
+        self.init = True
+        self.curdoc = curdoc()
+        self.create_widgets()
+        self.update_data(None)
+
+    @property
+    def stim(self):
+        if self.simu is not None:
+            return self.simu.simu_stim
+        return None
+
+    @stim.setter
+    def stim(self, value):
+        """ sets stim and affects the new value for the current N """
+        print(f"set new stim {value}")
+        if self.simu is not None:
+            self.simu.__setattr__("stim", value)
+
+    def create_widgets(self):
+        """
+        Creates the widgets of the graphic interface to select the plots to be displayed.
+        """
+
+        ## Titres
+        self.BRAID = Div(text="BRAID - Interactive Letter and Word Recognition", width=1200, height=50,
+                         style={'font-size': '300%'})
+        self.LP = Div(text="Letter Perception", width=800, height=50, style={'font-size': '300%'})
+        self.LD = Div(text="Lexical distributions", width=800, height=50, style={'font-size': '300%'})
+        self.TD = Div(text="Top Down and other distributions", width=800, height=50, style={'font-size': '300%'})
+
+        self.all_letters = RadioButtonGroup(labels=["Letters", "Phonemes"],
+                                            active=1 if self.simu.model.phono.enabled else 0)
+        self.all_letters.on_change('active', self.generic_gui)
+        self.run = Button(label="RUN", width=100)
+        self.run.on_click(self.update_data)
+        self.widgets2 = row(self.all_letters, self.run, width=3000)
+
+    def display_lexical_plots(self):
+        """
+        Creates the 4 lines of plots, after the perceptual plots on the top.
+        :return the 4 lines of plots.
+        """
+        l1 = row()
+        l2 = row()
+        l3 = row()
+        l4 = row()
+        l1.children.append(self.figures["ortho"]["word"])
+        if self.simu.model.phono.enabled:
+            l2.children.append(self.figures["phono"]["word"])
+        l1.children.append(self.figures["ortho"]["ld"])
+        if self.simu.model.phono.enabled:
+            l2.children.append(self.figures["phono"]["ld"])
+        l3.children.append(self.figures["ortho"]["gamma"])
+        if self.simu.model.phono.enabled:
+            l4.children.append(self.figures["phono"]["gamma"])
+        # l3.children.append(self.figures["ortho"]["gamma_sem"])
+        # if self.simu.model.phono.enabled:
+        #    l4.children.append(self.figures["phono"]["gamma_sem"])
+        # l3.children.append(self.figures["ortho"]["sim_sem"])
+        # if self.simu.model.phono.enabled:
+        #    l4.children.append(self.figures["phono"]["sim_sem"])
+        l3.children.append(self.att_fix['ortho'])
+        if self.simu.model.phono.enabled:
+            l4.children.append(self.att_fix["phono"])
+        l3.children.append(self.figures["ortho"]['H'])
+        if self.simu.model.phono.enabled:
+            l4.children.append(self.figures["phono"]['H'])
+        l1.children.append(self.figures['ortho']['L'])
+        if self.simu.model.phono.enabled:
+            l2.children.append(self.figures['phono']['L'])
+        l1.children.append(self.figures['ortho']['percept_global'])
+        if self.simu.model.phono.enabled:
+            l2.children.append(self.figures['phono']['percept_global'])
+        l1.children.append(self.figures["ortho"]["word_sim_att"])
+        return [l1, l2, l3, l4]
+
+    def generic_gui(self, attrname, old, new):
+        """
+        Generates the graphic interface
+        """
+        self.curdoc.clear()
+        self.curdoc.add_root(self.BRAID)
+        self.curdoc.add_root(self.widgets2)
+        self.curdoc.add_root(self.LP)
+        if self.all_letters.active == 0:
+            self.curdoc.add_root(self.figures["ortho"]["percept"])
+            self.LP.text = "Letter Perception"
+        elif self.simu.model.phono.enabled:
+            if self.all_letters.active == 1:
+                self.curdoc.add_root(self.figures["phono"]["percept"])
+                self.LP.text = "Phoneme Perception"
+        self.curdoc.add_root(self.LD)
+        [l1, l2, l3, l4] = self.display_lexical_plots()
+        self.curdoc.add_root(l1)
+        self.curdoc.add_root(l2)
+        self.curdoc.add_root(self.TD)
+        self.curdoc.add_root(l3)
+        self.curdoc.add_root(l4)
+        self.curdoc.title = "BRAID - Interactive Letter and Word Recognition/Reading"
+
+    def update_display(self, attrname, old, new):
+        """
+        Updates the plots to be displayed.
+        """
+        roots = curdoc().roots
+        [l1, l2, l3, l4] = self.display_lexical_plots()
+        roots[4].children = [l1]
+        roots[5].children = [l2]
+        roots[6].children = [l3]
+        roots[7].children = [l4]
+
+    def update_data(self, event):
+        """
+        Updates the data and the plot content.
+        """
+        # Get the current slider values
+        self.run.label = "RUNNING.."
+        self.init = self.mat["ortho"]["ld"] is None  # init de l'interface ?
+        self.run_percept()
+        t = time()
+        if self.init:  # crée sources une première fois
+            self.build_sources()
+        for mod in ["ortho", "phono"]:
+            if getattr(self.simu.model, mod).enabled:
+                self.word_distrib(mod)
+                self.DL_distrib(mod)
+                self.TD_influence(mod)
+                # self.TD_influence(mod,True)
+                # self.TD_influence(mod,False,True)
+                self.get_letter_plots(mod)
+                self.attention_fixations(mod)
+                self.H_distrib(mod)
+                self.L_distrib(mod)
+                self.percept_distrib(mod)
+        self.word_distrib("ortho", "word_sim_att")
+        self.one_letter_plot()
+        self.run.label = "RUN"
+        self.generic_gui(None, None, None)
+        logging.info(f" time needed for the GUI {time() - t}")
+
+    #########################################
+    ######## Simulation/data handling ##############
+    #########################################
+
+    def run_percept(self):
+        """
+        Runs a simulation and stores the results in numpy arrays.
+        """
+        t = time()
+        self.simu.run_simu_general()
+        logging.info(f"time needed for simulation :  {time() - t}")
+        self.duration = self.simu.t_tot
+        self.range_tuple = (0, self.duration + 1)
+        self.range = range(self.duration + 1)
+        self.build_letter_source()
+        # get distributions
+        for mod in self.simu.model.op():
+            data = getattr(self.simu.model, mod)
+            if data.enabled:
+                for dist in self.simu.res[mod].keys():
+                    self.mat[mod][dist] = self.simu.res[mod][dist]
+                self.mat[mod]['L'] = data.get_dirac()
+        idx = self.simu.model.ortho.word.decision("word_index")
+        self.L_name = "PM" if self.simu.model.ortho.word.PM else self.simu.model.ortho.lexical.get_name(idx)
+
+    def build_sources(self):
+        """
+        Creates the data sources that will be used to create the plots.
+        """
+        self.letters = {mod: list(getattr(self.simu.model, mod).chars) for mod in self.simu.model.op()}
+
+        if self.simu.model.ortho.lexical.all_repr is None:
+            self.simu.model.complete_lexicon()
+        # self.simu.model.ortho.build_attention_distribution()
+        self.source_att_fix = {mod: ColumnDataSource(data=dict()) for mod in self.simu.model.op()}
+        src = {"word": ColumnDataSource(data=dict(x=self.range)),
+               "percept": ColumnDataSource(data=dict(x=self.range)),
+               "word_sim_att": ColumnDataSource(data=dict(x=self.range)),
+               "ld": ColumnDataSource(
+                   data=dict(x=self.range, y1=[0.5] * (self.duration + 1), y2=[0.5] * (self.duration + 1))),
+               "H": ColumnDataSource(data=dict(x=self.range)),
+               "L": ColumnDataSource(data=dict(x=range(len(self.stim))))}
+        self.source_dist = {mod: {key: ColumnDataSource(data=copy.deepcopy(value.data)) for key, value in src.items()}
+                            for mod in self.simu.model.op()}
+        self.source_dist['phono']['L'] = ColumnDataSource(data=dict(x=range(len(self.simu.model.phono.stim))))
+        self.source_global_letters = ColumnDataSource(data=dict(x=self.range))
+        # self.source_L=ColumnDataSource(data=dict(x=range(len(self.stim))))
+        # self.source_H=ColumnDataSource(data=dict(x=self.range))
+        self.build_letter_source()
+        # self.letters = list(self.model.orth_chars)
+        # self.init_letter_images()
+
+    def build_letter_source(self):
+        """
+        Creates the data source for the letter/phoneme plots.
+        """
+        mod = self.simu.model
+        self.source_letters = {
+            "ortho": [[ColumnDataSource(data=dict(x=self.range)) for _ in range(mod.ortho.n)] for _ in
+                      range(mod.ortho.N)]}
+        if mod.phono.enabled:
+            self.source_letters["phono"] = [[ColumnDataSource(data=dict(x=self.range)) for _ in range(mod.phono.n)] for
+                                            _ in range(mod.phono.M)]
+            self.source_letters_tmp = {
+                "phono": [[ColumnDataSource(data=dict(x=self.range)) for _ in range(mod.phono.n)] for _ in
+                          range(mod.phono.M)]}
+
+    ########################################
+    #### PLOT CREATION #####################
+    ########################################
+
+    ########################################
+    ###### First line ######################
+    ########################################
+
+    def init_letter_images(self):
+        """
+        Creates letter images.
+        """
+        self.imletters = np.ones((417, 271, 32))
+        for i in range(32):
+            img = Image.open(self.impath + str(i) + ".png").convert('LA')
+            self.imletters[:, :, i] = np.asarray(img)[185:602, 262:533, 0]
+        # self.imletters = np.flip(self.imletters, 0)
+        imanim = np.einsum('Nnt,ijn->Nijt', self.simu.res['ortho']['percept'][:, :-1], self.imletters)
+        sh = np.shape(imanim)[3]
+        for i in range(np.shape(imanim)[0]):
+            for t in range(0, sh, 5):
+                imageio.imwrite('Figures/BRAID/anim_slides/image_N' + str(i) + 't_' + str(t // 5) + '.png',
+                                imanim[i, :, :, t].astype(int))
+
+    def one_letter_plot(self):
+        """
+        Creates the plot with all letters/phonemes on one plot.
+        """
+        self.OLP = figure(x_range=(0, self.duration), y_range=(0, 1),
+                          plot_height=500, plot_width=500, tools="save")
+        # self.OLP.toolbar.logo, self.att_fix.toolbar_location = None, None
+        self.OLP.xaxis.axis_label = 'Iterations'
+        self.OLP.yaxis.axis_label = 'Probability'
+        self.OLP.x_range.end = self.duration - 1
+        self.source_global_letters.data = {}
+        self.source_global_letters.data['x'] = self.range
+        selected_letter = []
+        for i in range(len(self.stim)):
+            c = Colorblind8[i] if 2 < len(self.stim) < len(Colorblind8) else 'blue'
+            iM = np.argmax(self.mat["ortho"]["percept"][i, :, self.duration - 1])
+            selected_letter.append(iM)
+            self.source_global_letters.data[str(i)] = self.mat["ortho"]["percept"][i, iM, :]
+            self.OLP.line(x='x', y=str(i), line_width=6, legend_label="    " + self.letters["ortho"][iM], color=c,
+                          source=self.source_global_letters)
+        # on rajoute la position courante en rouge
+        time_list = self.simu.fix["ortho"]["t"] + [self.simu.t_tot]
+        pdb.set_trace()
+        for ipos, pos in enumerate(self.simu.fix["ortho"]["pos"]):
+            c = Colorblind[len(self.stim)][pos] if 2 < len(self.stim) < len(Colorblind8) else 'blue'
+            xrange = [time_list[ipos], time_list[ipos + 1]]
+            try:
+                y = self.mat["ortho"]["percept"][pos, selected_letter[pos], xrange[0]:xrange[1]]
+            except:
+                pdb.set_trace()
+            x = range(xrange[0], xrange[1])
+            self.OLP.line(x=x, y=y, line_width=12, color=c)
+
+        self.OLP.xaxis.ticker = [0, 100, 200, 300]
+        self.OLP.legend.location = 'top_left'
+        self.OLP.axis.axis_label_text_font_size = '30pt'
+        self.OLP.axis.axis_label_text_font_style = 'normal'
+        self.OLP.toolbar.logo, self.OLP.toolbar_location = None, None
+        self.OLP.title.text = "Percept Distribution"
+        self.OLP.title.text = ""
+        self.OLP.title.text_font_size = "30pt"
+        self.OLP.axis.major_label_text_font_size = "25pt"
+        self.OLP.legend.label_text_font_size = '25pt'
+        self.OLP.legend.glyph_height = 30
+        self.OLP.legend.background_fill_alpha = 0.1
+        self.OLP.add_layout(Legend(), 'left')
+        self.OLP.output_backend = "svg"
+
+    def update_letter_plot(self, pos, mod="ortho", dist="percept"):
+        """
+        Updates data for the letter plot (one plot per letter/phoneme)
+        :param pos: the position (plot) to update
+        :param mod: string, "ortho" or "phono".
+        :param dist: string, the name of the distribution (always use percept)
+        :return: data that will be used to print the plot.
+        """
+        mat = self.mat[mod][dist]
+        src = self.source_letters[mod] if dist == "percept" else self.source_letters_tmp[mod]
+        maxi = [self.mat[mod][dist][pos, i, -1] for i in range(len(self.letters[mod]))]
+        indices = list(reversed(np.argsort(maxi)))
+        val_max = []
+
+        for i in indices:
+            y = [mat * 10 + i + 0.5 for mat in mat[pos, i, :]]
+            z = [i + 0.5 for mat in mat[pos, i, :]]
+            m = maxi[i];
+            val_max.append(m)
+            color = [Plasma256[int(m * 255)] for _ in range(len(z))]
+            src[pos][i].data = {"x": self.range, "y1": y, "y2": z, "color": color}
+        return indices, val_max
+
+    def letter_plot(self, pos, mod="ortho", dist="percept"):
+        """
+        Creates the letter plot (one plot per letter/phoneme).
+        :param pos: the position (plot) to update
+        :param mod: string, "ortho" or "phono".
+        :param dist: string, the name of the distribution (always use percept)
+        :return: the letter plot
+        """
+        # mat=self.mat[mod]["percept"]
+        p = figure(y_range=self.letters[mod] + ['', ' ', '  ', '   ', '    ', '     ', '      '], plot_width=220,
+                   plot_height=400, x_range=(0, self.duration), toolbar_location=None, tools="reset,save,wheel_zoom")
+        p.min_border_left = 5
+        p.min_border_right = 15
+        p.outline_line_color = None
+        ticker = FixedTicker(ticks=[])
+        legend = ticker.ticks
+        # pour afficher les plus grandes aires en premier
+        indices, val_max = self.update_letter_plot(pos, mod, dist)
+        src = self.source_letters[mod] if dist == "percept" else self.source_letters_tmp[mod]
+        for i, vm in zip(indices, val_max):
+            # complète la colorbar : pas d'overlap
+            if vm > 0.05 and (legend == [] or min([abs(vm - t) for t in legend]) > 0.03):
+                legend.append(vm)
+            v1 = p.varea(x='x', y1='y1', y2='y2', color=src[pos][i].data["color"][0], alpha=1, source=src[pos][i])
+            l1 = p.line(x='x', y='y1', line_width=1, color=src[pos][i].data["color"][0], source=src[pos][i])
+        p.axis.major_label_text_font_size = "9pt"
+        return p
+
+    def letter_image(self, i):
+        """
+        Creates a letter image that represents the current perception (mean of all images ponderated by their probability).
+        :param i: position on the word
+        :return: the image
+        """
+        im = figure(x_range=(0, 8), y_range=(0, 5),
+                    plot_height=100, plot_width=150,
+                    tools="")
+        im.xaxis.visible = False
+        im.yaxis.visible = False
+        im.image(image=str(i), source=self.source_img, x=0, y=0, dw=8, dh=5,
+                 palette=grey(256))
+        p = gridplot([[im]])
+        image = p.get_root_references()[0].webdriver.screenshot_as_png
+        file_path = os.path.join(os.getcwd(), 'animation.gif')
+        imageio.mimsave(file_path, image, fps=10)
+        return im
+
+    def get_letter_plots(self, mod="ortho", dist="percept"):
+        """
+            Graphical handling of the letter plot
+            :param mod: string, "ortho" or "phono".
+            :param dist: string, the name of the distribution (always use percept)
+            """
+        nbyrow = 5
+        modality = getattr(self.simu.model, mod)
+        n = modality.N if mod == 'ortho' else modality.M
+        nbL = n // 4 + 1
+        rows = [row([self.letter_plot(line * nbyrow + i, mod=mod, dist=dist) for i in range(nbyrow) if
+                     line * nbyrow + i < n]) for line in range(nbL)]
+        self.figures[mod][dist] = column(children=rows)
+
+    ########################################
+    ###### Second line ######################
+    ########################################
+
+    ### attention ###
+
+    def update_attention_fixations(self, mod="ortho"):
+        """
+        Updates fixations data for the fixation plot.
+        :param mod: string, "ortho" or "phono".
+        """
+        modality = getattr(self.simu.model, mod)
+        N = modality.N if mod == "ortho" else modality.M
+        self.att_fix[mod].x_range.end = N
+        self.source_att_fix[mod].data = {"left": range(N), "right": range(1, N + 1)}
+        hMax = min(np.diff(self.simu.fix["ortho"]["t"])) / 2 if len(self.simu.fix["ortho"]["t"]) > 1 else self.duration
+        for i, (att, t) in enumerate(zip(self.simu.fix[mod]["att"], self.simu.fix["ortho"]["t"])):
+            self.source_att_fix[mod].data["y" + str(i)] = [t - j / sum(att) * min(hMax, 100) for j in att]
+            self.source_att_fix[mod].data["h" + str(i)] = [j / sum(att) * min(hMax, 100) * 2 for j in att]
+            self.source_att_fix[mod].data["c" + str(i)] = [Plasma256[min(255, int(j * 256))] for j in att]
+            ticker = FixedTicker(ticks=[0, 1])
+            legend = ticker.ticks
+            for a in att:
+                if min([abs(a - k) for k in legend]) > 0.05:
+                    legend.append(a)
+            ticker.ticks = sorted(list(set(legend)))
+        # gestion des nombres affichés sur les échelles x et y
+        stim = getattr(self.simu.model, mod).stim.upper() if mod == "ortho" else getattr(self.simu.model, mod).stim
+        max_len = getattr(self.simu.model, mod).lexical.lenMax if mod == "ortho" else getattr(self.simu.model, mod).lexical.phlenMax
+        stim = stim + (' ' * (max_len- len(stim) + 1) if self.simu.model.phono.enabled else ' ')
+        self.att_fix[mod].xaxis.ticker = [i for i in range(N + 1)]
+        if len(stim) > 1:  # on a rajouté un ' ' pour mettre les lettres sur l'axe
+            self.att_fix[mod].xaxis.major_label_overrides = {key: "   " + stim[key] for key in range(N + 1)}
+        # colorbar : obligé de la recréer à chaque fois
+        color_mapper = LinearColorMapper(palette="Plasma256", low=0, high=1)
+
+    def attention_fixations(self, mod="ortho"):
+        """
+        Creates the fixation plot on the lexical-plots line
+        :param mod: string, "ortho" or "phono".
+        """
+        sz = 1
+        modality = getattr(self.simu.model, mod)
+        N = modality.N if mod == "ortho" else modality.M
+        self.att_fix[mod] = figure(plot_width=300, plot_height=300, x_range=(0, N),
+                                   y_range=(self.duration, -200), tools="")
+        self.att_fix[mod].xaxis.axis_label, self.att_fix[mod].yaxis.axis_label = (
+                                                                                     'Letter' if mod == "ortho" else "Phoneme") + ' Position', 'Iterations'
+        self.att_fix[mod].xaxis.axis_label_text_font_style, self.att_fix[
+            mod].yaxis.axis_label_text_font_style = 'normal', 'normal'
+        self.update_attention_fixations(mod=mod)
+        fix_t = self.simu.fix["ortho"]["t"]
+        for i in range(len(fix_t)):
+            self.att_fix[mod].hbar(y="y" + str(i), height="h" + str(i), left="left",  # une barre =une fixation
+                                   right="right", color="blue", source=self.source_att_fix[mod])
+            pos = int(self.simu.fix[mod]["pos"][i])
+            posSd = self.source_att_fix[mod].data['h' + str(i)][pos] + 0.2
+            glyph = Text(x=pos, y=fix_t[i] - posSd, text=[str(self.simu.fix["ortho"]["sd"][i])],
+                         text_color="black", text_font_size=str(sz * 8) + "pt")
+            self.att_fix[mod].add_glyph(glyph)
+        self.att_fix[mod].axis.major_label_text_font_size = str(sz * 10) + "pt"
+        self.att_fix[mod].toolbar_location = "left"
+        self.att_fix[mod].xaxis.major_label_text_align = 'center'
+        self.att_fix[mod].yaxis[0].ticker = FixedTicker(ticks=[0, self.duration] + fix_t)
+        self.att_fix[mod].axis.axis_label_text_font_size = '15pt'  # str(sz*10)+"pt" #'20pt'
+        self.att_fix[mod].title.text = "Attention Distribution"
+        self.att_fix[mod].title.text = ""
+        self.att_fix[mod].title.text_font_size = str(sz * 10) + "pt"  # "20pt"
+        self.att_fix[mod].output_backend = "svg"
+        # export_svgs(self.att_fix[mod], filename="/home/alexandra/biblio/Redaction/SoutenanceThese/Figures/Schemas/attention_exploration_"+mod+".svg")
+
+    ### words ###
+
+    def word_distrib(self, mod="ortho", dist="word"):
+
+        """
+        Creates the plot of the word distribution.
+        To choose the words to be displayed, 5 time steps. We keep max 2 words for the 4 first time steps, 4 words for the last.
+        For the display order, we sort the curves by descending order at tmax
+        :param mod: string, "ortho" or "phono".
+        :param dist: string, the name of the distribution
+        """
+        if self.init:
+            wd = figure(x_range=(0, self.duration + 1), plot_height=300, plot_width=300, tools="",
+                        x_axis_label="iterations", y_axis_label="P(W=w)")
+            if dist == "word":
+                wd.y_range = Range1d(0, 1)
+            self.figures[mod][dist] = wd
+        word_indices, wrd_to_plot = self.update_word(mod, dist=dist)
+        if self.init:
+            for i, ind in enumerate(word_indices):
+                wd.varea_stack([str(i)], x='x', color=Plasma9[i], source=self.source_dist[mod][dist],  # Spectral9
+                               alpha=0.5, legend_field=['l' + str(i)])
+            # wd.line([0,3000], y=[0.9,0.9], color='black', line_width=1)
+            # wd.legend.location=(0,100 if dist=="word" else 50)
+            wd.legend.location = "top_left"
+            wd.legend.background_fill_alpha = 0.0
+            wd.legend.border_line_alpha = 0.0
+            wd.toolbar.logo = None
+            # wd.legend.label_text_font_size = "20pt"
+            # wd.title.text = ("Word" if dist=="word" else "Word similarity") + " Distribution"+ (' Phono' if mod=="phono" else "")
+            # wd.xaxis.axis_label_text_font_size = '20pt'
+            # wd.yaxis.axis_label_text_font_size = '20pt'
+            # wd.xaxis.major_label_text_font_size = '25px'
+            # wd.yaxis.major_label_text_font_size = '25px'
+            # if mod=="ortho":
+            # export_png(self.figures[mod]["word"], filename="ville_word_"+mod+".png", height=500, width=500)
+
+    def update_word(self, mod="ortho", dist="word"):
+        """
+        Updates data for the word plot.
+        :param mod: string, "ortho" or "phono".
+        :param dist: string, the name of the distribution
+        :return: data to be used for the word plot
+        """
+        n_words = 9 if dist == 'word' else 7
+        n_step = 5
+        candidates = []
+        source = ColumnDataSource(data=dict(x=self.range))
+        wd = self.figures[mod][dist]
+        mat = np.array(self.mat[mod][dist])
+        if dist == "word_sim_att" :
+            mat = np.array(self.mat[mod][dist][:,0,:])
+        wd.x_range.end = self.duration
+        source.data['x'] = self.range
+        pas = self.duration // n_step  # regarde le max à 5 endroits
+        for i in range(1, n_step):
+            source.data[str(i)] = [0 for i in self.range]
+            source.data['l' + str(i)] = ['no name' for i in self.range]
+            n = np.shape(mat)[1]
+            try:
+                candidates += list(np.argsort(mat[:, i * pas])[::-1][0:min(n_words, n)])
+            except:
+                pass
+        candidates += list(np.argsort(mat[:, -1])[::-1][0:min(n_words, n)])
+        word_indices = list(set(candidates))  # indices des mots
+        indices_val = [max(mat[i, :]) for i in word_indices]
+        # trie ordre apparition selon valeur du max
+        word_indices = [x for _, x in sorted(zip(indices_val, word_indices), reverse=True)][0:min(n_words, n)]
+        wrd_to_plot = [self.simu.model.ortho.lexical.get_name(i) for i in word_indices]
+        # wrd_to_display=['/'+i.replace('#','')+'/' for i in wrd_to_plot] if mod=="phono" else wrd_to_plot
+        for i, (ind, word) in enumerate(zip(word_indices, wrd_to_plot)):
+            source.data[str(i)] = mat[ind, :]
+            try:
+                f = float(self.simu.model.ortho.lexical.get_word_entry(word).freq)
+            except:
+                f = float(self.simu.model.ortho.lexical.get_word_entry(word).head(1).freq)
+            source.data['l' + str(i)] = [wrd_to_plot[i] + " " + "{:.2f}".format(f) for j in
+                                         self.range]  # plot mot + sa freq
+        rt = np.argmax(mat[word_indices[0], :] > self.threshold_wd)
+        if rt == 0:
+            rt = -1
+        # pour avoir la valeur de WD à t=-1 sur l'axe y
+        val = source.data["0"][-1]
+        tck = [val] + [i / 5 for i in range(6) if abs(i / 5 - val) > 0.05]
+        ticker = FixedTicker(ticks=tck)
+        wd.yaxis[0].ticker = ticker
+        self.source_dist[mod][dist].data = dict(source.data)
+        return word_indices, wrd_to_plot
+
+    ### DL ###
+
+    def reactionTime(self, mod="ortho"):
+        """
+        Calculates the reaction time of the lexical decision plot (when data is above or below some thresholds).
+        :param mod: string, "ortho" or "phono".
+        :return: float, the reaction time
+        """
+        mat = self.mat[mod]["ld"]
+        rt = np.argmax(mat[0] > self.threshold_ld)
+        rt2 = np.argmax(mat[1] > self.threshold_ld)
+        rt = max(rt, rt2) if rt + rt2 > 0 else -1
+        return rt
+
+    def DL_distrib(self, mod="ortho"):
+        """
+        Creates the leical decision plot.
+        :param mod: string, "ortho" or "phono".
+        """
+        if self.init:
+            self.dl = figure(x_range=(0, self.duration + 1), y_range=(0, 1.05), x_axis_label="iterations",
+                        y_axis_label="P(DL)",
+                        plot_height=300, plot_width=300, tools="")
+            self.figures[mod]["ld"] = self.dl
+        self.update_ld(mod=mod)
+        if self.init:
+            source = self.source_dist[mod]["ld"]
+            self.dl.line(x='x', y="y1", source=source, legend_label="yes", color="blue")
+            self.dl.line(x='x', y="y2", source=source, legend_label="no", color="red")
+            self.dl.line([0, 3000], y=[0.95, 0.95], color='black', line_width=1)
+            self.dl.toolbar.logo = None
+        self.dl.legend.label_text_font_size = "20pt"
+        self.dl.xaxis.axis_label_text_font_size = '20pt'
+        self.dl.yaxis.axis_label_text_font_size = '20pt'
+        self.dl.xaxis.major_label_text_font_size = '15px'
+        self.dl.yaxis.major_label_text_font_size = '15px'
+        # export_png(dl, filename="ville_ld_"+mod+".png", height=500, width=500)
+
+    def update_ld(self, mod="ortho"):
+        """
+        Updates data for the lexical decision plot.
+        :param mod: string, "ortho" or "phono".
+        """
+        source = self.source_dist[mod]["ld"]
+        mat = self.mat[mod]["ld"]
+        self.dl = self.figures[mod]["ld"]
+        self.dl.x_range.end = self.duration
+        source.data = {'x': self.range, "y1": mat[0], "y2": mat[1]}
+        rt = self.reactionTime(mod=mod)
+        # dl.title.text='Lexical Decision ' + (' Phono ' if mod=="phono" else "") + str(rt)
+        # pour avoir la valeur de DL à t=-1 sur l'axe y
+        val = source.data["y1"][-1]
+        tck = [val] + [i / 5 for i in range(6) if abs(i / 5 - val) > 0.05]
+        ticker = FixedTicker(ticks=tck)
+        self.dl.yaxis[0].ticker = ticker
+
+    ### Phi (prononciation) ###
+
+    def percept_distrib(self, mod="ortho", dist="percept"):
+        """
+        Creates the plot to display all phonemes on one plot.
+        :param dist: string, the name of the distribution
+        """
+        self.figures[mod]["percept_global"] = figure(x_range=(0, self.duration + 1), y_range=(0, 1),
+                                                     plot_height=300, plot_width=300, tools="")
+        self.source_dist[mod][dist].data = {'x': self.range}
+        mat = self.mat[mod][dist]
+        if mat is not None:
+            n = np.shape(mat)[0]
+            for i in range(n):
+                ph = np.argmax(mat[i, :, -1])
+                self.source_dist[mod][dist].data[str(i)] = mat[i, ph, :]
+                chars = getattr(self.simu.model, mod).chars
+                phoneme = chars[ph]
+                self.figures[mod]["percept_global"].line(y=str(i), x='x', color=Plasma256[int(i * 256 / n)],
+                                                         source=self.source_dist[mod][dist], alpha=0.9,
+                                                         legend_label=phoneme, line_width=3)
+            self.figures[mod]["percept_global"].toolbar.logo = None
+            self.figures[mod]["percept_global"].title.text = "Percept Distribution"
+            self.figures[mod]["percept_global"].legend.location = "center_left"
+            self.figures[mod]["percept_global"].legend.label_text_font_size = "10pt"
+
+    ### Top Down influence ###
+
+    def TD_influence(self, mod="ortho", sem=False, sim=False):
+        """
+        Creates the plot showing the strength of top-down retroaction.
+        :param mod: string, "ortho" or "phono".
+        :param sem: boolean, is it semantic top-down or ortho/phono lexical top-down ? If True, it's semantic top-down.
+        :param sim: boolean, if True, it's not the strength of the top-down but the similarity score.
+        """
+        gm = ("sim" if sim else "gamma") + ("_sem" if (sem or sim) else "")
+        m = max(self.mat[mod][gm]) * 1.05
+        mat = self.mat[mod][gm]
+        label = gm + (" phono" if mod == "phono" else "")
+        f = figure(x_range=(0, self.duration + 1), y_range=(0, max(m, 0.0001)),
+                   plot_height=300, plot_width=300, tools="")
+        f.line(x=self.range, y=mat, legend_label=label, color="blue")
+        f.toolbar.logo = None
+        f.title.text = "Top Down Influence " + ("sem " if sem else "") + ("sim " if sim else "") + (
+            "Phono " if mod == "phono" else "")
+        self.figures[mod][gm] = f
+
+    ### Connaissances orthographiques P(L|W) ###
+
+    def L_distrib(self, mod="ortho"):
+        """
+        Creates the plot showing quality of lexical representations.
+        """
+        stim = getattr(self.simu.model, mod).stim
+        if self.init:
+            self.figures[mod]['L'] = figure(plot_width=300, plot_height=300, tools="")
+        self.update_L(mod)
+        if self.init:
+            labels = LabelSet(x='x', y='y', text='y', level='glyph',
+                              x_offset=-22, y_offset=0.1, source=self.source_dist[mod]['L'], render_mode='canvas')
+            self.figures[mod]['L'].add_layout(labels)
+            self.figures[mod]['L'].vbar(x='x', top='z', width=0.8, color='blue', source=self.source_dist[mod]['L'])
+            self.figures[mod]['L'].line([-1, 10], y=[1, 1], color='black', line_width=1)
+            self.figures[mod]['L'].y_range.end = 1.2
+            self.figures[mod]['L'].y_range.start = 0
+            self.figures[mod]['L'].x_range.end = len(stim) - 0.5
+            self.figures[mod]['L'].x_range.start = -0.5
+            self.figures[mod]['L'].toolbar.logo = None
+
+    def update_L(self, mod="ortho"):
+        """
+        Updates the data for the plot showing the quality of lexical representations.
+        """
+        stim = getattr(self.simu.model, mod).stim
+        self.figures[mod]['L'].x_range.end = len(stim)
+        self.source_dist[mod]['L'].data = dict()
+        self.source_dist[mod]['L'].data["x"] = range(len(stim))
+        l = ["{:4.2f}".format(x) for x in self.mat[mod]['L']]
+        self.source_dist[mod]["L"].data["y"] = [str(i)[1:] if float(i) < 1 else i for i in l]
+        self.source_dist[mod]["L"].data["z"] = l
+        self.figures[mod]['L'].title.text = " Lexical knowledge " + mod
+
+    ### Entropy over letters ###
+
+    def H_distrib(self, mod="ortho"):
+        """
+        Creates the plot showing the evolution of letter entropy over time.
+        """
+        if self.init:
+            self.figures[mod]['H'] = figure(x_range=(0, self.duration + 1), y_range=(0, 30),
+                                            plot_height=300, plot_width=300, tools="", toolbar_location="above")
+        self.update_H(mod)
+        if self.init:
+            self.figures[mod]['H'].extra_y_ranges = {"der": Range1d(start=-0.05, end=0.2)}
+            self.figures[mod]['H'].line(x='x', y="h", source=self.source_dist[mod]['H'], legend_label="H", color="blue")
+            self.figures[mod]['H'].line(x='x', y="h_proto", source=self.source_dist[mod]['H'], legend_label="HProto",
+                                        color="green")
+            self.figures[mod]['H'].legend.background_fill_alpha = 0.0
+            self.figures[mod]['H'].toolbar.logo = None
+            self.figures[mod]['H'].title.text = "Percept Entropy"
+
+    def update_H(self, mod="ortho"):
+        """
+        Updates data for the entropy plot
+        """
+        self.figures[mod]['H'].x_range.end = self.duration
+        self.source_dist[mod]['H'].data = {}
+        h = [np.sum([entropy(i) for i in p]) for p in np.moveaxis(self.mat[mod]["percept"], -1, 0)]
+        dh = np.diff(h);
+        dh = np.append(dh, dh[-1]) * (-1)  # pour avoir la même taille que h
+        proto = self.simu.get_prototype()
+        self.figures[mod]['H'].y_range = Range1d(0, math.ceil(h[0]))
+        proto = [proto[i] if i < len(proto) else proto[-1] for i in range(len(h))]
+        self.source_dist[mod]['H'].data["h"] = h
+        self.source_dist[mod]['H'].data["h_der"] = dh
+        self.source_dist[mod]['H'].data["h_proto"] = proto
+        self.source_dist[mod]['H'].data['x'] = range(len(h))
+        rt = self.reactionTime()

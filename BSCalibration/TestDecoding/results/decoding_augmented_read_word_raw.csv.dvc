@@ -1,5 +1,0 @@
-outs:
-- md5: 73f4ce7f688af91eb1613c356ddd26f8
-  size: 23430
-  hash: md5
-  path: decoding_augmented_read_word_raw.csv

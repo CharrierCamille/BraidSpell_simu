@@ -1,0 +1,9 @@
+braidpy
+=======
+
+.. toctree::
+   :maxdepth: 4
+
+   braidpy
+   notebooks
+   setup

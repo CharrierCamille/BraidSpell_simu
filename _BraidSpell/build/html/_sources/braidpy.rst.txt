@@ -1,0 +1,125 @@
+braidpy package
+===============
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   braidpy.GUI
+
+Submodules
+----------
+
+braidpy.attention module
+------------------------
+
+.. automodule:: braidpy.attention
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+braidpy.braid module
+--------------------
+
+.. automodule:: braidpy.braid
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+braidpy.detect\_errors module
+-----------------------------
+
+.. automodule:: braidpy.detect_errors
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+braidpy.expe module
+-------------------
+
+.. automodule:: braidpy.expe
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+braidpy.lexical module
+----------------------
+
+.. automodule:: braidpy.lexical
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+braidpy.lexicon module
+----------------------
+
+.. automodule:: braidpy.lexicon
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+braidpy.modality module
+-----------------------
+
+.. automodule:: braidpy.modality
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+braidpy.percept module
+----------------------
+
+.. automodule:: braidpy.percept
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+braidpy.semantic module
+-----------------------
+
+.. automodule:: braidpy.semantic
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+braidpy.sensor module
+---------------------
+
+.. automodule:: braidpy.sensor
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+braidpy.simu module
+-------------------
+
+.. automodule:: braidpy.simu
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+braidpy.utilities module
+------------------------
+
+.. automodule:: braidpy.utilities
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+braidpy.word module
+-------------------
+
+.. automodule:: braidpy.word
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: braidpy
+   :members:
+   :undoc-members:
+   :show-inheritance:

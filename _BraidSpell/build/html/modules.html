@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>braidpy &#8212; braid-acq 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=e031e9a9"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="braidpy">
+<h1>braidpy<a class="headerlink" href="#braidpy" title="Permalink to this heading">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="braidpy.html">braidpy package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="braidpy.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.GUI.html">braidpy.GUI package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.GUI.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.GUI.html#module-braidpy.GUI.gui">braidpy.GUI.gui module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.GUI.html#module-braidpy.GUI.plot">braidpy.GUI.plot module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.GUI.html#module-braidpy.GUI">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="braidpy.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="braidpy.html#module-braidpy.attention">braidpy.attention module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.attention.attention"><code class="docutils literal notranslate"><span class="pre">attention</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.attention.attention.__init__"><code class="docutils literal notranslate"><span class="pre">attention.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.attention.attention.build_attention_distribution"><code class="docutils literal notranslate"><span class="pre">attention.build_attention_distribution()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.attention.attention.mean"><code class="docutils literal notranslate"><span class="pre">attention.mean</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.attention.attention.sd"><code class="docutils literal notranslate"><span class="pre">attention.sd</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.attention.attention.sdM"><code class="docutils literal notranslate"><span class="pre">attention.sdM</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.attention.attentionOrtho"><code class="docutils literal notranslate"><span class="pre">attentionOrtho</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.attention.attentionOrtho.__init__"><code class="docutils literal notranslate"><span class="pre">attentionOrtho.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.attention.attentionOrtho.init_pos_auto"><code class="docutils literal notranslate"><span class="pre">attentionOrtho.init_pos_auto()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.attention.attentionPhono"><code class="docutils literal notranslate"><span class="pre">attentionPhono</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.attention.attentionPhono.__init__"><code class="docutils literal notranslate"><span class="pre">attentionPhono.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.attention.attentionPhono.build_attention_distribution"><code class="docutils literal notranslate"><span class="pre">attentionPhono.build_attention_distribution()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.attention.attentionPhono.calculate_attention_parameters"><code class="docutils literal notranslate"><span class="pre">attentionPhono.calculate_attention_parameters()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.attention.attentionPhono.len2phlen"><code class="docutils literal notranslate"><span class="pre">attentionPhono.len2phlen()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.attention.attentionPhono.set_regression"><code class="docutils literal notranslate"><span class="pre">attentionPhono.set_regression()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="braidpy.html#module-braidpy.braid">braidpy.braid module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.braid.braid"><code class="docutils literal notranslate"><span class="pre">braid</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.braid.braid.PM_decision_global"><code class="docutils literal notranslate"><span class="pre">braid.PM_decision_global()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.braid.braid.__init__"><code class="docutils literal notranslate"><span class="pre">braid.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.braid.braid.add_shift"><code class="docutils literal notranslate"><span class="pre">braid.add_shift()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.braid.braid.add_word"><code class="docutils literal notranslate"><span class="pre">braid.add_word()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.braid.braid.change_freq"><code class="docutils literal notranslate"><span class="pre">braid.change_freq()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.braid.braid.clean_lexicon"><code class="docutils literal notranslate"><span class="pre">braid.clean_lexicon()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.braid.braid.detect_mismatch"><code class="docutils literal notranslate"><span class="pre">braid.detect_mismatch()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.braid.braid.enable_phono"><code class="docutils literal notranslate"><span class="pre">braid.enable_phono()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.braid.braid.init_model_args"><code class="docutils literal notranslate"><span class="pre">braid.init_model_args()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.braid.braid.lex_shift"><code class="docutils literal notranslate"><span class="pre">braid.lex_shift()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.braid.braid.one_iteration"><code class="docutils literal notranslate"><span class="pre">braid.one_iteration()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.braid.braid.op"><code class="docutils literal notranslate"><span class="pre">braid.op()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.braid.braid.recalage_stim"><code class="docutils literal notranslate"><span class="pre">braid.recalage_stim()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.braid.braid.reset_model"><code class="docutils literal notranslate"><span class="pre">braid.reset_model()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.braid.braid.set_lexicon"><code class="docutils literal notranslate"><span class="pre">braid.set_lexicon()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.braid.braid.set_lexicon_name"><code class="docutils literal notranslate"><span class="pre">braid.set_lexicon_name()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.braid.braid.set_phono_length"><code class="docutils literal notranslate"><span class="pre">braid.set_phono_length()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.braid.braid.shift"><code class="docutils literal notranslate"><span class="pre">braid.shift</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.braid.braid.start"><code class="docutils literal notranslate"><span class="pre">braid.start()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="braidpy.html#module-braidpy.detect_errors">braidpy.detect_errors module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.detect_errors.detect_deletion_error"><code class="docutils literal notranslate"><span class="pre">detect_deletion_error()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.detect_errors.detect_end_error"><code class="docutils literal notranslate"><span class="pre">detect_end_error()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.detect_errors.detect_insertion_error"><code class="docutils literal notranslate"><span class="pre">detect_insertion_error()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.detect_errors.detect_insertion_grapheme_error"><code class="docutils literal notranslate"><span class="pre">detect_insertion_grapheme_error()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.detect_errors.detect_substitution_error"><code class="docutils literal notranslate"><span class="pre">detect_substitution_error()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.detect_errors.detect_substitution_grapheme_error"><code class="docutils literal notranslate"><span class="pre">detect_substitution_grapheme_error()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.detect_errors.detect_substitution_n_error"><code class="docutils literal notranslate"><span class="pre">detect_substitution_n_error()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.detect_errors.detect_substitution_schwa_error"><code class="docutils literal notranslate"><span class="pre">detect_substitution_schwa_error()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.detect_errors.subst"><code class="docutils literal notranslate"><span class="pre">subst()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="braidpy.html#module-braidpy.expe">braidpy.expe module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.expe.expe"><code class="docutils literal notranslate"><span class="pre">expe</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.expe.expe.__init__"><code class="docutils literal notranslate"><span class="pre">expe.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.expe.expe.begin_expe"><code class="docutils literal notranslate"><span class="pre">expe.begin_expe()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.expe.expe.compare_param"><code class="docutils literal notranslate"><span class="pre">expe.compare_param()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.expe.expe.end_expe"><code class="docutils literal notranslate"><span class="pre">expe.end_expe()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.expe.expe.get_random_list"><code class="docutils literal notranslate"><span class="pre">expe.get_random_list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.expe.expe.initialize_data"><code class="docutils literal notranslate"><span class="pre">expe.initialize_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.expe.expe.intermediate_store"><code class="docutils literal notranslate"><span class="pre">expe.intermediate_store()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.expe.expe.load_existing_data"><code class="docutils literal notranslate"><span class="pre">expe.load_existing_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.expe.expe.res_fct"><code class="docutils literal notranslate"><span class="pre">expe.res_fct()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.expe.expe.set_filenames"><code class="docutils literal notranslate"><span class="pre">expe.set_filename()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.expe.expe.store_res"><code class="docutils literal notranslate"><span class="pre">expe.store_res()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.expe.expe.update"><code class="docutils literal notranslate"><span class="pre">expe.update()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="braidpy.html#module-braidpy.lexical">braidpy.lexical module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="braidpy.html#module-braidpy.lexicon">braidpy.lexicon module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.lexicon.calculate_consistency"><code class="docutils literal notranslate"><span class="pre">calculate_consistency()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.lexicon.calculate_syllabic_consistency"><code class="docutils literal notranslate"><span class="pre">calculate_syllabic_consistency()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.lexicon.correct_graphemic_segmentation"><code class="docutils literal notranslate"><span class="pre">correct_graphemic_segmentation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.lexicon.createManulexCP"><code class="docutils literal notranslate"><span class="pre">createManulexCP()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.lexicon.del_index"><code class="docutils literal notranslate"><span class="pre">del_index()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.lexicon.extractLetterFreq"><code class="docutils literal notranslate"><span class="pre">extractLetterFreq()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.lexicon.extractLexicon"><code class="docutils literal notranslate"><span class="pre">extractLexicon()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.lexicon.extractPM"><code class="docutils literal notranslate"><span class="pre">extractPM()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.lexicon.extractPM_BLP"><code class="docutils literal notranslate"><span class="pre">extractPM_BLP()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.lexicon.extract_spanish_lexicon"><code class="docutils literal notranslate"><span class="pre">extract_spanish_lexicon()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.lexicon.is_consistent"><code class="docutils literal notranslate"><span class="pre">is_consistent()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.lexicon.neighbSize"><code class="docutils literal notranslate"><span class="pre">neighbSize()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.lexicon.neighbSizeLen"><code class="docutils literal notranslate"><span class="pre">neighbSizeLen()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.lexicon.neighbSizeLenList"><code class="docutils literal notranslate"><span class="pre">neighbSizeLenList()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.lexicon.neighbSizeList"><code class="docutils literal notranslate"><span class="pre">neighbSizeList()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.lexicon.removeNeigh"><code class="docutils literal notranslate"><span class="pre">removeNeigh()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.lexicon.selectdf"><code class="docutils literal notranslate"><span class="pre">selectdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.lexicon.simplify_letters"><code class="docutils literal notranslate"><span class="pre">simplify_letters()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.lexicon.simplify_phonemes"><code class="docutils literal notranslate"><span class="pre">simplify_phonemes()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="braidpy.html#module-braidpy.modality">braidpy.modality module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="braidpy.html#module-braidpy.percept">braidpy.percept module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.percept.percept"><code class="docutils literal notranslate"><span class="pre">percept</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.percept.percept.__init__"><code class="docutils literal notranslate"><span class="pre">percept.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.percept.percept.build_percept"><code class="docutils literal notranslate"><span class="pre">percept.build_percept()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.percept.percept.decision"><code class="docutils literal notranslate"><span class="pre">percept.decision()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.percept.percept.evaluate_decision"><code class="docutils literal notranslate"><span class="pre">percept.evaluate_decision()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.percept.percept.gamma_sem"><code class="docutils literal notranslate"><span class="pre">percept.gamma_sem()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.percept.percept.get_entropy"><code class="docutils literal notranslate"><span class="pre">percept.get_entropy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.percept.percept.init_gamma_sem"><code class="docutils literal notranslate"><span class="pre">percept.init_gamma_sem()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.percept.percept.print_dist"><code class="docutils literal notranslate"><span class="pre">percept.print_dist()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.percept.percept.update_percept"><code class="docutils literal notranslate"><span class="pre">percept.update_percept()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.percept.percept.update_percept_sem"><code class="docutils literal notranslate"><span class="pre">percept.update_percept_sem()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.percept.perceptOrtho"><code class="docutils literal notranslate"><span class="pre">perceptOrtho</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.percept.perceptOrtho.__init__"><code class="docutils literal notranslate"><span class="pre">perceptOrtho.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.percept.perceptOrtho.build_percept"><code class="docutils literal notranslate"><span class="pre">perceptOrtho.build_percept()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.percept.perceptOrtho.decision"><code class="docutils literal notranslate"><span class="pre">perceptOrtho.decision()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.percept.perceptOrtho.print_dist"><code class="docutils literal notranslate"><span class="pre">perceptOrtho.print_dist()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.percept.perceptPhono"><code class="docutils literal notranslate"><span class="pre">perceptPhono</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.percept.perceptPhono.__init__"><code class="docutils literal notranslate"><span class="pre">perceptPhono.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.percept.perceptPhono.build_decoding"><code class="docutils literal notranslate"><span class="pre">perceptPhono.build_decoding()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.percept.perceptPhono.build_percept"><code class="docutils literal notranslate"><span class="pre">perceptPhono.build_percept()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.percept.perceptPhono.calculate_psi"><code class="docutils literal notranslate"><span class="pre">perceptPhono.calculate_psi()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.percept.perceptPhono.decision"><code class="docutils literal notranslate"><span class="pre">perceptPhono.decision()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.percept.perceptPhono.filter_att"><code class="docutils literal notranslate"><span class="pre">perceptPhono.filter_att()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.percept.perceptPhono.get_used_words"><code class="docutils literal notranslate"><span class="pre">perceptPhono.get_used_words()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.percept.perceptPhono.phono_alignment"><code class="docutils literal notranslate"><span class="pre">perceptPhono.phono_alignment()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.percept.perceptPhono.print_dist"><code class="docutils literal notranslate"><span class="pre">perceptPhono.print_dist()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.percept.perceptPhono.psi_score"><code class="docutils literal notranslate"><span class="pre">perceptPhono.psi_score()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.percept.perceptPhono.select_phono_repr"><code class="docutils literal notranslate"><span class="pre">perceptPhono.select_phono_repr()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="braidpy.html#module-braidpy.semantic">braidpy.semantic module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.semantic.semantic"><code class="docutils literal notranslate"><span class="pre">semantic</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.semantic.semantic.__init__"><code class="docutils literal notranslate"><span class="pre">semantic.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.semantic.semantic.build_context"><code class="docutils literal notranslate"><span class="pre">semantic.build_context()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="braidpy.html#module-braidpy.sensor">braidpy.sensor module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.sensor.sensor"><code class="docutils literal notranslate"><span class="pre">sensor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.sensor.sensor.__init__"><code class="docutils literal notranslate"><span class="pre">sensor.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.sensor.sensor.build_confusion_matrix"><code class="docutils literal notranslate"><span class="pre">sensor.build_confusion_matrix()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.sensor.sensor.build_interference_matrix"><code class="docutils literal notranslate"><span class="pre">sensor.build_interference_matrix()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.sensor.sensor.gaze"><code class="docutils literal notranslate"><span class="pre">sensor.gaze</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.sensor.sensorOrtho"><code class="docutils literal notranslate"><span class="pre">sensorOrtho</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.sensor.sensorOrtho.__init__"><code class="docutils literal notranslate"><span class="pre">sensorOrtho.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.sensor.sensorOrtho.build_confusion_matrix"><code class="docutils literal notranslate"><span class="pre">sensorOrtho.build_confusion_matrix()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.sensor.sensorOrtho.build_interference_matrix"><code class="docutils literal notranslate"><span class="pre">sensorOrtho.build_interference_matrix()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.sensor.sensorOrtho.build_sensor"><code class="docutils literal notranslate"><span class="pre">sensorOrtho.build_sensor()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.sensor.sensorOrtho.conf_factor"><code class="docutils literal notranslate"><span class="pre">sensorOrtho.conf_factor</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.sensor.sensorPhono"><code class="docutils literal notranslate"><span class="pre">sensorPhono</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.sensor.sensorPhono.__init__"><code class="docutils literal notranslate"><span class="pre">sensorPhono.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.sensor.sensorPhono.build_confusion_matrix"><code class="docutils literal notranslate"><span class="pre">sensorPhono.build_confusion_matrix()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.sensor.sensorPhono.build_interference_matrix"><code class="docutils literal notranslate"><span class="pre">sensorPhono.build_interference_matrix()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="braidpy.html#module-braidpy.simu">braidpy.simu module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.simu.generic_simu"><code class="docutils literal notranslate"><span class="pre">generic_simu()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.simu.learning"><code class="docutils literal notranslate"><span class="pre">learning()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.simu.simu"><code class="docutils literal notranslate"><span class="pre">simu</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.PM_decisions"><code class="docutils literal notranslate"><span class="pre">simu.PM_decisions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.__init__"><code class="docutils literal notranslate"><span class="pre">simu.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.begin_simu"><code class="docutils literal notranslate"><span class="pre">simu.begin_simu()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.build_prototype"><code class="docutils literal notranslate"><span class="pre">simu.build_prototype()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.complete_dist"><code class="docutils literal notranslate"><span class="pre">simu.complete_dist()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.delete_correction"><code class="docutils literal notranslate"><span class="pre">simu.delete_correction()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.delete_fixation"><code class="docutils literal notranslate"><span class="pre">simu.delete_fixation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.detect_context_error"><code class="docutils literal notranslate"><span class="pre">simu.detect_context_error()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.detect_error_type"><code class="docutils literal notranslate"><span class="pre">simu.detect_error_type()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.detect_lexicalisation_error"><code class="docutils literal notranslate"><span class="pre">simu.detect_lexicalisation_error()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.detect_missing_bigram_error"><code class="docutils literal notranslate"><span class="pre">simu.detect_missing_bigram_error()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.detect_missing_letter_error"><code class="docutils literal notranslate"><span class="pre">simu.detect_missing_letter_error()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.end_removal"><code class="docutils literal notranslate"><span class="pre">simu.end_removal()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.end_simu"><code class="docutils literal notranslate"><span class="pre">simu.end_simu()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.getH"><code class="docutils literal notranslate"><span class="pre">simu.getH()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.get_prototype"><code class="docutils literal notranslate"><span class="pre">simu.get_prototype()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.increase_n"><code class="docutils literal notranslate"><span class="pre">simu.increase_n()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.init_pos"><code class="docutils literal notranslate"><span class="pre">simu.init_pos()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.init_removal"><code class="docutils literal notranslate"><span class="pre">simu.init_removal()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.init_res"><code class="docutils literal notranslate"><span class="pre">simu.init_res()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.init_simu_attributes"><code class="docutils literal notranslate"><span class="pre">simu.init_simu_attributes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.level"><code class="docutils literal notranslate"><span class="pre">simu.level</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.one_res"><code class="docutils literal notranslate"><span class="pre">simu.one_res()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.one_step_general"><code class="docutils literal notranslate"><span class="pre">simu.one_step_general()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.print_results"><code class="docutils literal notranslate"><span class="pre">simu.print_results()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.pronunciation_correction"><code class="docutils literal notranslate"><span class="pre">simu.pronunciation_correction()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.reset_n"><code class="docutils literal notranslate"><span class="pre">simu.reset_n()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.reshape_results"><code class="docutils literal notranslate"><span class="pre">simu.reshape_results()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.run_correction"><code class="docutils literal notranslate"><span class="pre">simu.run_correction()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.run_simu_H"><code class="docutils literal notranslate"><span class="pre">simu.run_simu_H()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.run_simu_app"><code class="docutils literal notranslate"><span class="pre">simu.run_simu_app()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.run_simu_change_pos"><code class="docutils literal notranslate"><span class="pre">simu.run_simu_change_pos()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.run_simu_choose_word"><code class="docutils literal notranslate"><span class="pre">simu.run_simu_choose_word()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.run_simu_general"><code class="docutils literal notranslate"><span class="pre">simu.run_simu_general()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.run_simu_normal"><code class="docutils literal notranslate"><span class="pre">simu.run_simu_normal()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.run_simu_threshold"><code class="docutils literal notranslate"><span class="pre">simu.run_simu_threshold()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.stopCriterion"><code class="docutils literal notranslate"><span class="pre">simu.stopCriterion()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.success"><code class="docutils literal notranslate"><span class="pre">simu.success()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.update_entropy"><code class="docutils literal notranslate"><span class="pre">simu.update_entropy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.update_fix_info"><code class="docutils literal notranslate"><span class="pre">simu.update_fix_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.update_position"><code class="docutils literal notranslate"><span class="pre">simu.update_position()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="braidpy.html#braidpy.simu.simu.update_sigma"><code class="docutils literal notranslate"><span class="pre">simu.update_sigma()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="braidpy.html#module-braidpy.utilities">braidpy.utilities module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.utilities.TD_dist"><code class="docutils literal notranslate"><span class="pre">TD_dist()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.utilities.abstractmethod"><code class="docutils literal notranslate"><span class="pre">abstractmethod()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.utilities.addLoggingLevel"><code class="docutils literal notranslate"><span class="pre">addLoggingLevel()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.utilities.build_word_transition_vector"><code class="docutils literal notranslate"><span class="pre">build_word_transition_vector()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.utilities.calculate_norm3D"><code class="docutils literal notranslate"><span class="pre">calculate_norm3D()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.utilities.create_repr"><code class="docutils literal notranslate"><span class="pre">create_repr()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.utilities.create_repr_mixt"><code class="docutils literal notranslate"><span class="pre">create_repr_mixt()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.utilities.edit_distance"><code class="docutils literal notranslate"><span class="pre">edit_distance()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.utilities.fullspec"><code class="docutils literal notranslate"><span class="pre">fullspec()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.utilities.gaussian"><code class="docutils literal notranslate"><span class="pre">gaussian()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.utilities.get_size"><code class="docutils literal notranslate"><span class="pre">get_size()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.utilities.l_round"><code class="docutils literal notranslate"><span class="pre">l_round()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.utilities.matplotlib_style"><code class="docutils literal notranslate"><span class="pre">matplotlib_style()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.utilities.norm1D"><code class="docutils literal notranslate"><span class="pre">norm1D()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.utilities.norm2D"><code class="docutils literal notranslate"><span class="pre">norm2D()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.utilities.norm3D"><code class="docutils literal notranslate"><span class="pre">norm3D()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.utilities.norm_percept"><code class="docutils literal notranslate"><span class="pre">norm_percept()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.utilities.pandas_options"><code class="docutils literal notranslate"><span class="pre">pandas_options()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.utilities.prod"><code class="docutils literal notranslate"><span class="pre">prod()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.utilities.str_eq"><code class="docutils literal notranslate"><span class="pre">str_eq()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.utilities.str_transfo"><code class="docutils literal notranslate"><span class="pre">str_transfo()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.utilities.word_sim_att"><code class="docutils literal notranslate"><span class="pre">word_sim_att()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="braidpy.html#braidpy.utilities.wsim"><code class="docutils literal notranslate"><span class="pre">wsim()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="braidpy.html#module-braidpy.word">braidpy.word module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="braidpy.html#module-braidpy">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks.html">notebooks package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks.html#module-notebooks">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="setup.html">setup module</a></li>
+</ul>
+</div>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">braid-acq</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, Alexandra Steinhilber.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/modules.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

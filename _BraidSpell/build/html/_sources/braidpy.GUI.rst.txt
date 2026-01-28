@@ -1,0 +1,29 @@
+braidpy.GUI package
+===================
+
+Submodules
+----------
+
+braidpy.GUI.gui module
+----------------------
+
+.. automodule:: braidpy.GUI.gui
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+braidpy.GUI.plot module
+-----------------------
+
+.. automodule:: braidpy.GUI.plot
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: braidpy.GUI
+   :members:
+   :undoc-members:
+   :show-inheritance:

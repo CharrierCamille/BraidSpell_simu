@@ -1,0 +1,41 @@
+char,idx,ipa,type,Examples
+p,0,p,consonant,"père, soupe "
+b,1,b,consonant,"bon, robe "
+t,2,t,consonant,"terre, vite"
+d,3,d,consonant,"dans, aide"
+k,4,k,consonant,"carré, laque "
+g,5,g,consonant,"gare, bague "
+f,6,f,consonant,"feu, neuf "
+v,7,v,consonant,"vous, rêve "
+s,8,s,consonant,"sale, dessous "
+z,9,z,consonant,"zéro, maison "
+S,10,ʃ,consonant,"chat, tâche "
+Z,11,ʒ,consonant,"gilet, mijoter "
+m,12,m,consonant,"main, femme "
+n,13,n,consonant,"nous, tonne "
+N,14,ŋ,consonant,"agneau, vigne "
+r,15,r,consonant,camping 
+R,16,ʁ,consonant,"rue, venir "
+l,17,l,consonant,liquide
+G,18,ng,consonant,camping (en)
+x,19,x,consonant,jota (sp)
+w,20,w,Semi-vowel,"oui, nouer "
+j,21,j,Semi-vowel,"yeux, paille "
+8,22,ɥ,Semi-vowel,"huit, lui "
+a,23,a,vowel,"bat, plat "
+i,24,i,vowel,"lit, émis "
+y,25,y,vowel,lu 
+u,26,u,vowel,roue 
+o,27,o,vowel,"peau, mot "
+O,28,ɔ,vowel,"éloge, fort"
+e,29,e,vowel,été 
+E,30,ɛ,vowel,"paire, treize "
+°,31,ə,vowel,abordera
+2,32,ø,vowel,deux 
+9,33,œ,vowel,"œuf, peur "
+5,34,ɛ̃,vowel,"cinq, linge "
+1,35,œ̃,vowel,"un, parfum "
+@,36,ɑ̃,vowel,ange 
+&,37,ɔ̃,vowel,"on, savon "
+3,38,ɜ,vowel,parvenu
+#,39,#,end,end
